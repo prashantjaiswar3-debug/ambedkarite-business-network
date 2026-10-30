@@ -161,7 +161,7 @@
       <label class="form-field">Address line 2<input id="bizAddress2" maxlength="220"></label>
       <div class="form-row"><label class="form-field">Landmark<input id="bizLandmark"></label><label class="form-field">District<input id="bizDistrict"></label></div>
       <div class="form-row"><label class="form-field">State<input id="bizState" value="Maharashtra"></label><label class="form-field">PIN code<input id="bizPincode" inputmode="numeric" maxlength="10"></label></div>
-      <div class="form-row"><label class="form-field">Latitude (optional)<input id="bizLatitude" type="number" step="any"></label><label class="form-field">Longitude (optional)<input id="bizLongitude" type="number" step="any"></label></div>
+      <div class="map-tools"><button type="button" class="secondary-btn" id="bizLocateBtn">Use my current location</button><span class="muted">Click the map or drag the pin to set the business location.</span></div><div id="bizMap" class="business-map" aria-label="Select business location on map"></div><div class="form-row"><label class="form-field">Latitude (optional)<input id="bizLatitude" type="number" step="any"></label><label class="form-field">Longitude (optional)<input id="bizLongitude" type="number" step="any"></label></div>
       <label class="form-field">Business logo (JPG/PNG/WEBP, max 5 MB)<input id="bizLogo" type="file" accept="image/jpeg,image/png,image/webp"></label>
       <label class="form-field">Cover photo (max 5 MB)<input id="bizCover" type="file" accept="image/jpeg,image/png,image/webp"></label>
       <label class="form-field">Gallery photos (up to 8, max 5 MB each)<input id="bizPhotos" type="file" accept="image/jpeg,image/png,image/webp" multiple></label>
@@ -260,6 +260,6 @@
   </dialog>
 
   <div id="toast" class="toast" role="status"></div>
-  <script type="module" src="app.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>\n  <script type="module" src="app.js"></script>
 </body>
 </html>
