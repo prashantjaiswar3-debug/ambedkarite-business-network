@@ -30,4 +30,4 @@
 .business-detail-hero p{margin:0;color:var(--muted,#64748b)}
 .detail-modal h3{margin:18px 0 8px}
 @media(max-width:560px){.business-detail-hero{grid-template-columns:1fr}.business-detail-hero img{width:100%;height:150px}}
-.branch-buttons{display:flex;gap:8px;flex-wrap:wrap}
+.branch-buttons{display:flex;gap:8px;flex-wrap:wrap}.business-gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px;margin:12px 0}.business-gallery img{width:100%;height:100px;object-fit:cover;border-radius:10px}
