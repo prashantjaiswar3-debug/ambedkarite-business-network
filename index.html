@@ -12,19 +12,19 @@
 <body class="consumer-portal">
   <header class="topbar">
     <a class="brand" href="#" aria-label="ABN home">
-      <span class="brand-mark">ABN</span><span><b>ABN</b><small>Ambedkarite Business Network</small></span>
+      <span class="brand-mark"><img src="assets/abn-mark.svg" alt=""></span><span><b>ABN</b><small>Ambedkarite Business Network</small></span><span class="brand-tagline">Support Local&nbsp; | &nbsp;Grow Together</span>
     </a>
     <label class="search"><span>⌕</span><input id="searchInput" placeholder="Search businesses, products, services…"><button id="searchBtn" aria-label="Search">⌕</button></label>
     
-    <div class="top-actions">
+    <div class="top-actions"><button class="location-pill">⌖ <span>Your Location<br><b>India</b></span>⌄</button><button class="notification-btn">♧<i>3</i></button>
       <button id="langToggle" class="lang-btn">हिंदी</button>
       <button id="accountBtn" class="profile-trigger" type="button" aria-label="Open profile menu" title="My Profile"><span id="headerAvatar" class="header-avatar-fallback">AB</span></button>
-      <div id="profileMenu" class="profile-menu" hidden><div class="profile-menu-head"><span id="menuAvatar" class="menu-avatar">AB</span><span><b id="menuName">Welcome to ABN</b><small id="menuEmail">Sign in to your account</small></span></div><button type="button" data-profile-action="profile">⚙ <span>Profile Settings</span></button><button type="button" data-profile-action="add-business" id="menuAddBusiness">＋ <span>Add Your Business</span></button><button type="button" data-profile-action="products">▧ <span>Products & Services</span></button><button type="button" data-profile-action="enquiries">✉ <span>My Enquiries</span></button><button type="button" data-profile-action="login" id="menuLogin">↪ <span>Login / Sign up</span></button><button type="button" data-profile-action="logout" id="menuLogout" hidden>↪ <span>Logout</span></button></div>
+      <div id="profileMenu" class="profile-menu" hidden><div class="profile-menu-head"><span id="menuAvatar" class="menu-avatar">AB</span><span><b id="menuName">Welcome to ABN</b><small id="menuEmail">Sign in to your account</small></span></div><button type="button" data-profile-action="profile">♙ <span>My Profile</span></button><button type="button" data-profile-action="enquiries">▣ <span>My Orders / Enquiries</span></button><button type="button" data-profile-action="saved">♡ <span>Saved Businesses</span></button><button type="button" data-profile-action="reviews">☆ <span>Reviews & Ratings</span></button><button type="button" data-profile-action="settings">⚙ <span>Settings</span></button><button type="button" data-profile-action="login" id="menuLogin">↪ <span>Login / Sign up</span></button><button type="button" data-profile-action="logout" id="menuLogout" hidden>↪ <span>Logout</span></button></div>
       <button id="menuBtn" class="mobile-menu" aria-label="Menu">☰</button>
     </div>
   </header>
 
-  <nav class="consumer-nav" aria-label="Marketplace navigation"><a class="active" href="#home">⌂ <span>Home</span></a><a href="#businesses">▦ <span>Businesses</span></a><a href="#products">◇ <span>Products</span></a><a href="#popularCategories">▤ <span>Categories</span></a></nav>
+  <nav class="consumer-nav" aria-label="Marketplace navigation"><a class="active" href="#home">⌂ <span>Home</span></a><a href="#popularCategories">Categories ⌄</a><a href="#businesses">Businesses</a><a href="#products">Products</a><a href="#offers">Offers</a><a href="#more">More ⌄</a></nav>
   <aside class="sidebar" id="sidebar">
     <nav>
       <a class="nav-link active" href="#home"><span>⌂</span><b data-i18n="dashboard">Dashboard</b></a>
@@ -46,25 +46,23 @@
   <main class="main" id="home">
     <section class="hero">
       <div class="hero-copy">
-        <p class="eyebrow">ABN — AMBEDKARITE BUSINESS NETWORK</p>
-        <h1 data-i18n="heroTitle">Together We Build a <em>Stronger Business Community</em></h1>
-        <h3 data-i18n="heroSub">Support. Grow. Succeed.</h3>
-        <p data-i18n="heroText">Connect with trusted businesses, products and services from our community.</p>
+        <h1>Discover Trusted<br>Businesses Near You</h1><p class="hero-description">Explore verified businesses, quality products and<br> services from our community.</p>
       </div>
-      <div class="hero-art" aria-hidden="true"><div class="hero-orbit"></div><div class="hero-building">▥</div><div class="hero-handshake">🤝</div></div>
+      <div class="hero-slogan">Local Business<br>Local Growth<br>Stronger Community</div><form class="hero-search" id="heroSearchForm"><label>⌕ <input id="heroSearchInput" placeholder="Search businesses, products, services..."></label><label>⌖ <select><option>All Locations</option></select></label><label>▦ <select><option>All Categories</option></select></label><button class="primary-btn">Search</button></form>
     </section>
 
     <div class="content-grid">
       <div class="primary-content">
         <section class="category-area" id="popularCategories"><div class="consumer-section-title"><h2>Popular Categories</h2><a href="#businesses">View all →</a></div><section class="category-strip" id="categoryStrip" aria-label="Business categories">
-          <button class="category active" data-category=""><span>▦</span><small data-i18n="all">All</small></button>
-          <button class="category" data-category="retail-shops"><span>▣</span><small>Retail & Shops</small></button>
-          <button class="category" data-category="food-restaurant"><span>♨</span><small>Food & Restaurant</small></button>
+          <button class="category active" data-category=""><span>🍴</span><small>Food &<br>Restaurants</small></button>
+          <button class="category" data-category="retail-shops"><span>▣</span><small>Shopping &<br>Retail</small></button>
+          <button class="category" data-category="education-coaching"><span>🎓</span><small>Education &<br>Coaching</small></button>
+          <button class="category" data-category="healthcare"><span>♥</span><small>Health &<br>Wellness</small></button>
+          <button class="category" data-category="automotive"><span>🚘</span><small>Automotive</small></button>
+          <button class="category" data-category="home-furniture"><span>⌂</span><small>Home &<br>Furniture</small></button>
           <button class="category" data-category="services"><span>⚙</span><small>Services</small></button>
-          <button class="category" data-category="education-coaching"><span>🎓</span><small>Education & Coaching</small></button>
-          <button class="category" data-category="it-digital"><span>▤</span><small>IT & Digital</small></button>
-          <button class="category" data-category="manufacturing"><span>▥</span><small>Manufacturing</small></button>
-          <button class="category" data-category="healthcare"><span>✚</span><small>Healthcare</small></button>
+          <button class="category" data-category="beauty-personal-care"><span>❀</span><small>Beauty &<br>Personal Care</small></button>
+          <button class="category" data-category="more"><span>▦</span><small>More</small></button>
         </section></section>
 
         <section class="section-heading" id="businesses">
@@ -117,18 +115,17 @@
         </section>
       </div>
 
-      <aside class="right-rail">
-        <div class="verify-card">
+      <aside class="right-rail"><div class="support-card"><div class="shop-emoji">📣</div><h3>Support<br>Local Business</h3><p>Every purchase helps<br>our community grow.</p><button id="exploreBtn">Explore Now →</button></div><section class="top-rated-panel"><div class="top-rated-heading"><h2>Top Rated Businesses</h2><a href="#businesses">View All →</a></div><div id="topRatedList"><p class="muted">Loading…</p></div></section>
+        <div class="verify-card legacy-verify-card">
           <div class="verify-head"><span class="big-shield">✓</span><h2 data-i18n="verifyOneClick">Get Verified<br>in One Click</h2></div>
           <p data-i18n="verifyDesc">Show your business is genuine and build trust with more customers.</p>
           <ul><li>✓ <span data-i18n="quickProcess">Quick & easy verification process</span></li><li>✓ <span data-i18n="confidence">Build customer confidence</span></li><li>✓ <span data-i18n="verifiedBadge">Get the verified badge</span></li><li>✓ <span data-i18n="visibility">More visibility in search & listings</span></li></ul>
           <button class="primary-btn wide" id="verifyNowBtn" data-i18n="verifyNow">Verify Your Business Now →</button>
         </div>
-        <div class="support-card"><div class="shop-emoji">📣</div><h3>Support Local Business</h3><p>Every purchase helps our community grow.</p><button id="exploreBtn">Explore Now →</button></div>
         <div class="dream-card"><div><b>Small Businesses<br>Big Dreams</b><small>Together We Grow</small></div></div>
       </aside>
     </div>
-    <footer>© <span id="year"></span> Ambedkarite Business Network • <a href="mailto:support@abn.example">Contact Support</a></footer>
+    <footer class="consumer-footer"><div class="footer-brand"><span class="footer-mark">ABN</span><b>Ambedkarite Business Network</b></div><span>Empowering Bahujan Communities Through Business & Opportunity</span><nav><a href="#more">About Us</a><a href="mailto:support@abn.example">Contact</a><a href="#privacy">Privacy Policy</a><a href="#help">Help</a></nav><div class="footer-social">f&nbsp; ▶&nbsp; ◉&nbsp; 𝕏</div></footer>
   </main>
 
   <dialog id="authDialog" class="modal">
