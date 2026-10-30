@@ -161,8 +161,8 @@ function renderBusinesses(){
     const logo=b.logo_url||"";
     return `<article class="business-card"><div class="business-cover"><img src="${escapeHtml(cover)}" alt="" loading="lazy"><span class="verified-tag ${verified?"":"no"}">${verified?"✓ VERIFIED":"◉ NOT VERIFIED"}</span></div><div class="business-body"><div class="business-title">${logo?`<img class="business-logo" src="${escapeHtml(logo)}" alt="">`:`<span class="business-logo"></span>`}<h3>${escapeHtml(b.name)}</h3></div><div class="business-meta"><span>▣ ${escapeHtml(b.business_categories?.[lang==="hi"?"name_hi":"name_en"]||"Business")}</span><span>📍 ${escapeHtml([b.city,b.state].filter(Boolean).join(", ")||"India")}</span><span class="rating">★ ${Number(b.average_rating||0).toFixed(1)} (${b.review_count||0} reviews)</span></div><div class="chips"><span class="chip">${escapeHtml(b.business_categories?.name_en||"Local Business")}</span><span class="chip">ABN Network</span></div><div class="card-actions"><button class="primary-btn" data-view-business="${b.id}">View Business</button><button class="secondary-btn" data-enquire="${b.id}">Enquire</button></div></div></article>`
   }).join(""):`<div class="empty">No published businesses match your search yet. Business owners can add a listing after signing up.</div>`;
-  $("[data-enquire]").forEach(btn=>btn.addEventListener("click",()=>openEnquiry(btn.dataset.enquire)));
-  $("[data-view-business]").forEach(btn=>btn.addEventListener("click",()=>openBusinessDetail(btn.dataset.viewBusiness)));
+  $$("[data-enquire]").forEach(btn=>btn.addEventListener("click",()=>openEnquiry(btn.dataset.enquire)));
+  $$("[data-view-business]").forEach(btn=>btn.addEventListener("click",()=>openBusinessDetail(btn.dataset.viewBusiness)));
 }
 async function openBusinessDetail(id){
   const b=allBusinesses.find(x=>x.id===id);if(!b)return;
@@ -227,8 +227,8 @@ async function loadBranches(){
   }).join("");
   panel.innerHTML='<div class="branch-actions"><button class="primary-btn" id="addBranchBtn">＋ Add branch / outlet</button></div>'+(cards||'<p class="muted">No branches added yet.</p>');
   $("#addBranchBtn").addEventListener("click",()=>openBranchForm());
-  $("[data-edit-branch]").forEach(btn=>btn.addEventListener("click",()=>openBranchForm((data||[]).find(x=>x.id===btn.dataset.editBranch))));
-  $("[data-delete-branch]").forEach(btn=>btn.addEventListener("click",async()=>{
+  $$("[data-edit-branch]").forEach(btn=>btn.addEventListener("click",()=>openBranchForm((data||[]).find(x=>x.id===btn.dataset.editBranch))));
+  $$("[data-delete-branch]").forEach(btn=>btn.addEventListener("click",async()=>{
     if(!confirm("Delete this branch / outlet?"))return;
     btn.disabled=true;const {error}=await supabase.from("business_branches").delete().eq("id",btn.dataset.deleteBranch);
     if(error){toast(error.message);btn.disabled=false;return}
