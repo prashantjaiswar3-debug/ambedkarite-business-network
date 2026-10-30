@@ -91,7 +91,7 @@ $("#menuBtn").addEventListener("click",()=>$("#sidebar").classList.toggle("open"
 const profileMenu=$("#profileMenu");
 $("#accountBtn").addEventListener("click",(e)=>{e.stopPropagation();if(!session){showAuth("login");return;}profileMenu.hidden=!profileMenu.hidden;});
 document.addEventListener("click",e=>{if(profileMenu&&!profileMenu.contains(e.target)&&!$("#accountBtn").contains(e.target))profileMenu.hidden=true;});
-$$$("[data-profile-action]").forEach(b=>b.addEventListener("click",()=>{const action=b.dataset.profileAction;profileMenu.hidden=true;if(action==="login")showAuth("login");else if(action==="logout")signOut();else if(action==="profile")$("#profile").scrollIntoView({behavior:"smooth"});else if(action==="products")$("#products").scrollIntoView({behavior:"smooth"});else if(action==="enquiries")toast("Send enquiries from individual business pages.");}));
+$$$([data-profile-action]").forEach(b=>b.addEventListener("click",()=>{const action=b.dataset.profileAction;profileMenu.hidden=true;if(action==="login")showAuth("login");else if(action==="logout")signOut();else if(action==="profile")$("#profile").scrollIntoView({behavior:"smooth"});else if(action==="products")$("#products").scrollIntoView({behavior:"smooth"});else if(action==="enquiries")toast("Send enquiries from individual business pages.");}));
 
 $("#exploreBtn").addEventListener("click",()=>$("#businesses").scrollIntoView({behavior:"smooth"}));
 $("#verifyBtn").addEventListener("click",openVerification);
