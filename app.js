@@ -124,7 +124,7 @@ async function loadBusinesses(){
   allBusinesses=data||[];renderBusinesses();await loadProducts();
 }
 async function loadProducts(){
-  const {data,error}=await supabase.from("products_services").select("id,business_id,item_type,name,name_hi,description,description_hi,price,price_unit,businesses(name,city)").eq("is_active",true).order("created_at",{ascending:false}).limit(36);
+  const {data,error}=await supabase.from("products_services").select("id,business_id,item_type,name,name_hi,description,description_hi,price,price_unit,image_url,businesses(name,city)").eq("is_active",true).order("created_at",{ascending:false}).limit(36);
   if(error){$("#productGrid").innerHTML=`<p class="muted">${escapeHtml(error.message)}</p>`;return}
   $("#productGrid").innerHTML=data?.length?data.map(p=>`<article class="product-card">${p.image_url?`<img class="product-image" src="${escapeHtml(p.image_url)}" alt="" loading="lazy">`:""}<b>${escapeHtml(lang==="hi"?(p.name_hi||p.name):p.name)}</b><p>${escapeHtml(p.businesses?.name||"ABN Business")} · ${p.item_type}</p><p>${escapeHtml(p.description||"")}</p><strong>${p.price==null?"Price on request":"₹"+Number(p.price).toLocaleString("en-IN")}${p.price_unit?" / "+escapeHtml(p.price_unit):""}</strong></article>`).join(""):'<div class="empty">No products or services listed yet. Business owners can add their offerings.</div>';
 }
