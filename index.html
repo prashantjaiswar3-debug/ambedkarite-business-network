@@ -156,11 +156,12 @@
       <label class="form-field">Category<select id="bizCategory" required></select></label>
       <label class="form-field">Business type<select id="bizType"><option value="both">B2C + B2B</option><option value="b2c">B2C — Customers</option><option value="b2b">B2B — Businesses</option></select></label>
       <label class="form-field">Phone<input id="bizPhone" type="tel"></label>
+      <label class="form-field">Address / Building / Street<input id="bizAddress" maxlength="220" placeholder="House / shop no., street, area" autocomplete="street-address"></label>
+      <label class="form-field">Address line 2 / Landmark<input id="bizAddress2" maxlength="220"></label>
+      <label class="form-field">State / UT<select id="bizState" required><option value="">Select state / UT</option></select></label>
+      <label class="form-field">District<input id="bizDistrict" placeholder="Enter district"></label>
       <label class="form-field">City / Town<select id="bizCity" required disabled><option value="">Select state first</option></select></label>
-      <label class="form-field">Address line 1<input id="bizAddress" maxlength="220"></label>
-      <label class="form-field">Address line 2<input id="bizAddress2" maxlength="220"></label>
-      <div class="form-row"><label class="form-field">Landmark<input id="bizLandmark"></label><label class="form-field">District<input id="bizDistrict"></label></div>
-      <div class="form-row"><label class="form-field">State / UT<select id="bizState" required><option value="">Select state / UT</option></select></label><label class="form-field">PIN code<input id="bizPincode" inputmode="numeric" maxlength="10"></label></div>
+      <label class="form-field">PIN code<input id="bizPincode" inputmode="numeric" maxlength="6" pattern="[0-9]{6}" placeholder="6-digit PIN code"></label>
       <div class="map-tools"><button type="button" class="secondary-btn" id="bizLocateBtn">Use my current location</button><span class="muted">Click the map or drag the pin to set the business location.</span></div><div id="bizMap" class="business-map" aria-label="Select business location on map"></div><div class="form-row"><label class="form-field">Latitude (optional)<input id="bizLatitude" type="number" step="any"></label><label class="form-field">Longitude (optional)<input id="bizLongitude" type="number" step="any"></label></div>
       <label class="form-field">Business logo (JPG/PNG/WEBP, max 5 MB)<input id="bizLogo" type="file" accept="image/jpeg,image/png,image/webp"></label>
       <label class="form-field">Cover photo (max 5 MB)<input id="bizCover" type="file" accept="image/jpeg,image/png,image/webp"></label>
@@ -236,20 +237,12 @@
         <label class="form-field">WhatsApp<input id="branchWhatsapp" type="tel"></label>
         <label class="form-field">Email<input id="branchEmail" type="email"></label>
       </div>
-      <label class="form-field">Address line 1<input id="branchAddress1" required maxlength="220"></label>
-      <label class="form-field">Address line 2<input id="branchAddress2" maxlength="220"></label>
-      <div class="form-row">
-        <label class="form-field">Landmark<input id="branchLandmark"></label>
-        <label class="form-field">Area / locality<input id="branchArea"></label>
-      </div>
-      <div class="form-row">
-        <label class="form-field">City / Town<select id="branchCity" required disabled><option value="">Select state first</option></select></label>
-        <label class="form-field">District<input id="branchDistrict"></label>
-      </div>
-      <div class="form-row">
-        <label class="form-field">State / UT<select id="branchState" required><option value="">Select state / UT</option></select></label>
-        <label class="form-field">PIN code<input id="branchPincode" inputmode="numeric" maxlength="10"></label>
-      </div>
+      <label class="form-field">Address / Building / Street<input id="branchAddress1" required maxlength="220" placeholder="House / shop no., street, area"></label>
+      <label class="form-field">Address line 2 / Landmark<input id="branchAddress2" maxlength="220"></label>
+      <label class="form-field">State / UT<select id="branchState" required><option value="">Select state / UT</option></select></label>
+      <label class="form-field">District<input id="branchDistrict"></label>
+      <label class="form-field">City / Town<select id="branchCity" required disabled><option value="">Select state first</option></select></label>
+      <label class="form-field">PIN code<input id="branchPincode" inputmode="numeric" maxlength="6" pattern="[0-9]{6}"></label>
       <label class="form-field">Country<input id="branchCountry" value="India"></label>
       <div class="form-row">
         <label class="form-field">Latitude<input id="branchLatitude" type="number" step="any"></label>
