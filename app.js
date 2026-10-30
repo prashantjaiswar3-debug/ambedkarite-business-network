@@ -279,12 +279,8 @@ async function loadAdminPanel(){
     if(error)toast(error.message);else window.open(data.signedUrl,"_blank","noopener,noreferrer");
   }));
   async function reviewVerification(id,status){
-    const {error}=await supabase.from("business_verification_requests").update({status,reviewed_by:session.user.id,reviewed_at:new Date().toISOString(),review_notes:status==="rejected"?"Please contact ABN support for details.":null}).eq("id",id);
+    const {error}=await supabase.rpc("admin_review_verification",{p_request_id:id,p_status:status,p_review_notes:status==="rejected"?"Please contact ABN support for details.":null});
     if(error){toast(error.message);return}
-    if(status==="approved"){
-      const req=(requests||[]).find(x=>x.id===id);
-      if(req)await supabase.from("businesses").update({verification_status:"verified"}).eq("id",req.business_id);
-    }
     toast("Verification "+status+".");await loadAdminPanel();await loadBusinesses();
   }
   $$("[data-verify-approve]").forEach(btn=>btn.addEventListener("click",()=>reviewVerification(btn.dataset.verifyApprove,"approved")));
