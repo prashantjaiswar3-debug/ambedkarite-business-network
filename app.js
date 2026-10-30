@@ -154,9 +154,19 @@ $("#enquiryForm").addEventListener("submit",async e=>{
 async function refreshUserUI(){
   if(!session){profile=null;ownerBusinesses=[];$("#accountBtn").textContent="Login / Sign up";$("#ownerPanel").innerHTML=`<p class="muted">${translations[lang].loginOwner}</p>`;$("#branchPanel").innerHTML='<p class="muted">Sign in as a business owner to manage branches and outlets.</p>';$("#enquiryPanel").innerHTML='<p class="muted">Login to view enquiries.</p>';$("#profilePanel").innerHTML='<p class="muted">Sign in to view your profile.</p>';$("#adminSection").classList.add("hidden");return}
   $("#accountBtn").textContent=session.user.email.split("@")[0];
-  const {data}=await supabase.from("profiles").select("full_name,phone,preferred_language,account_type").eq("id",session.user.id).maybeSingle();profile=data;
-  $("#profilePanel").innerHTML=`<b>${escapeHtml(profile?.full_name||session.user.email)}</b><p class="muted">${escapeHtml(session.user.email)} · ${escapeHtml(profile?.account_type||"customer")}</p><button class="secondary-btn" id="logoutBtn">Logout</button>`;
+  const {data}=await supabase.from("profiles").select("full_name,phone,avatar_url,preferred_language,account_type").eq("id",session.user.id).maybeSingle();profile=data;
+  $("#profilePanel").innerHTML=`<div class="profile-card">${profile?.avatar_url?`<img class="profile-avatar" src="${escapeHtml(profile.avatar_url)}" alt="Profile photo">`:`<span class="profile-avatar profile-avatar-empty">ABN</span>`}<div><b>${escapeHtml(profile?.full_name||session.user.email)}</b><p class="muted">${escapeHtml(session.user.email)} · ${escapeHtml(profile?.account_type||"customer")}</p></div></div><form id="avatarForm" class="avatar-form"><label class="form-field">Profile picture (JPG/PNG/WEBP, max 5 MB)<input id="avatarFile" type="file" accept="image/jpeg,image/png,image/webp" required></label><button class="secondary-btn" type="submit">Upload profile picture</button><span id="avatarMessage" class="muted"></span></form><button class="secondary-btn" id="logoutBtn">Logout</button>`;
   $("#logoutBtn").addEventListener("click",signOut);
+  $("#avatarForm").addEventListener("submit",async e=>{
+    e.preventDefault();const btn=e.submitter;if(btn)btn.disabled=true;
+    try{
+      const url=await uploadUserFile($("#avatarFile").files[0],"abn-business-media","avatars",5);
+      const {error}=await supabase.from("profiles").update({avatar_url:url}).eq("id",session.user.id);
+      if(error)throw error;toast("Profile picture updated.");await refreshUserUI();
+    }catch(err){$("#avatarMessage").textContent=err.message||"Unable to upload profile picture."}
+    finally{if(btn)btn.disabled=false}
+  });
+
   await loadOwnerBusinesses();await loadProducts();
   const isAdmin=session.user.app_metadata?.role==="admin";
   $("#adminSection").classList.toggle("hidden",!isAdmin);if(isAdmin)await loadAdminPanel();
