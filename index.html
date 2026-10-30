@@ -19,7 +19,7 @@
     <div class="top-actions">
       <button id="langToggle" class="lang-btn">हिंदी</button>
       <button id="accountBtn" class="profile-trigger" type="button" aria-label="Open profile menu" title="My Profile"><span id="headerAvatar" class="header-avatar-fallback">AB</span></button>
-      <div id="profileMenu" class="profile-menu" hidden><div class="profile-menu-head"><span id="menuAvatar" class="menu-avatar">AB</span><span><b id="menuName">Welcome to ABN</b><small id="menuEmail">Sign in to your account</small></span></div><button type="button" data-profile-action="profile">♙ <span>My Profile</span></button><button type="button" data-profile-action="products">▧ <span>Products & Services</span></button><button type="button" data-profile-action="enquiries">✉ <span>My Enquiries</span></button><button type="button" data-profile-action="login" id="menuLogin">↪ <span>Login / Sign up</span></button><button type="button" data-profile-action="logout" id="menuLogout" hidden>↪ <span>Logout</span></button></div>
+      <div id="profileMenu" class="profile-menu" hidden><div class="profile-menu-head"><span id="menuAvatar" class="menu-avatar">AB</span><span><b id="menuName">Welcome to ABN</b><small id="menuEmail">Sign in to your account</small></span></div><button type="button" data-profile-action="profile">⚙ <span>Profile Settings</span></button><button type="button" data-profile-action="add-business" id="menuAddBusiness">＋ <span>Add Your Business</span></button><button type="button" data-profile-action="products">▧ <span>Products & Services</span></button><button type="button" data-profile-action="enquiries">✉ <span>My Enquiries</span></button><button type="button" data-profile-action="login" id="menuLogin">↪ <span>Login / Sign up</span></button><button type="button" data-profile-action="logout" id="menuLogout" hidden>↪ <span>Logout</span></button></div>
       <button id="menuBtn" class="mobile-menu" aria-label="Menu">☰</button>
     </div>
   </header>
@@ -109,8 +109,7 @@
           <button class="primary-btn" id="verifyBtn" data-i18n="applyVerification">Apply for Verification</button>
         </div>
 
-        <section class="section-heading lower-heading" id="profile"><div><h2 data-i18n="profile">My Profile</h2></div></section>
-        <div id="profilePanel" class="panel"><p class="muted">Sign in to view your profile.</p></div>
+        
 
         <section id="adminSection" class="admin-section hidden">
           <div class="section-heading"><div><h2>ABN Administration</h2><p>Review and publish business listings.</p></div></div>
@@ -142,9 +141,7 @@
       <label id="nameField" class="form-field hidden">Full name<input id="authName" autocomplete="name"></label>
       <label class="form-field">Email<input id="authEmail" type="email" required autocomplete="email"></label>
       <label class="form-field">Password<input id="authPassword" type="password" required minlength="8" autocomplete="current-password"></label>
-      <label id="accountTypeField" class="form-field hidden">I want to
-        <select id="accountType"><option value="consumer">Find products and services (Consumer / User)</option><option value="business_owner">List my business (Business Owner)</option></select>
-      </label>
+      <input id="accountType" type="hidden" value="consumer"><p id="accountTypeField" class="muted hidden">New accounts start as Consumer. You can apply to list a business after signing in.</p>
       <button class="primary-btn wide" id="authSubmit">Login</button>
       <button type="button" class="text-btn" id="forgotBtn">Forgot password?</button>
       <p id="authMessage" class="form-message" role="status"></p>
@@ -174,6 +171,7 @@
     </form>
   </dialog>
 
+  <dialog id="profileSettingsDialog" class="modal"><div class="modal-card"><button type="button" class="close" data-close="profileSettingsDialog">×</button><h2>Profile Settings</h2><div id="profilePanel"><p class="muted">Sign in to view your profile.</p></div></div></dialog>
 
   <dialog id="productDialog" class="modal">
     <form id="productForm" class="modal-card">
