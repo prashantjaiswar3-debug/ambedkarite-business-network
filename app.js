@@ -214,7 +214,8 @@ async function refreshUserUI(){
     finally{if(btn)btn.disabled=false}
   });
 
-  if(location.pathname.replace(/\\/+$/,"").endsWith("/owner")&&!["business_owner","admin"].includes(effectiveAccountType)){toast("Business Owner access is required.");location.replace("../");return;}\n  await loadOwnerBusinesses();await loadProducts();
+  if(location.pathname.replace(/\/+$/,"").endsWith("/owner")&&!["business_owner","admin"].includes(effectiveAccountType)){toast("Business Owner access is required.");location.replace("../");return;}
+  await loadOwnerBusinesses();await loadProducts();
   // Administration is handled only in the dedicated /admin/ portal.
   $("#adminSection").classList.add("hidden");
 }
