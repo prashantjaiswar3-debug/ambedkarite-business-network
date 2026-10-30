@@ -14,3 +14,8 @@
 #verificationAdminPanel{margin-top:22px;padding-top:14px;border-top:1px solid var(--border,#e5e7eb)}
 #verificationAdminPanel .admin-row{gap:14px;align-items:center}
 @media(max-width:600px){.branch-card-head,.branch-actions{align-items:flex-start;flex-direction:column}.product-image{height:130px}}
+
+.profile-card{display:flex;align-items:center;gap:14px;margin-bottom:14px}
+.profile-avatar{width:64px;height:64px;border-radius:50%;object-fit:cover;display:inline-flex;align-items:center;justify-content:center;flex:none}
+.profile-avatar-empty{background:#e8eefc;color:#1d4ed8;font-weight:800}
+.avatar-form{display:grid;gap:10px;margin:10px 0 16px}
