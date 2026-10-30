@@ -133,34 +133,22 @@ $$(".category").forEach(b=>b.addEventListener("click",()=>{$$(".category").forEa
 $$(".filter").forEach(b=>b.addEventListener("click",()=>{$$(".filter").forEach(x=>x.classList.remove("active"));b.classList.add("active");statusFilter=b.dataset.filter;renderBusinesses()}));
 $$("[data-auth-mode]").forEach(b=>b.addEventListener("click",()=>showAuth(b.dataset.authMode)));
 
-function showAuth(mode){
-  authMode=mode;$("#authTitle").textContent=mode==="login"?"Welcome back":"Create your ABN account";
-  $("#authHint").textContent=mode==="login"?"Login to your account.":"Join the Ambedkarite Business Network.";
-  $("#nameField").classList.toggle("hidden",mode!=="signup");$("#accountTypeField").classList.toggle("hidden",mode!=="signup");$("#accountType").value="consumer";
-  $("#forgotBtn").classList.toggle("hidden",mode!=="login");$("#authSubmit").textContent=mode==="login"?"Login":"Create account";
-  $$("[data-auth-mode]").forEach(b=>b.classList.toggle("active",b.dataset.authMode===mode));$("#authMessage").textContent="";
+function showAuth(mode="login"){
+  authMode="login";
+  $("#authTitle").textContent="Sign in to ABN";
+  $("#authHint").textContent="Use your Google account to continue. New users are registered automatically.";
+  $("#authMessage").textContent="";
   openDialog("authDialog");
 }
-$("#authForm").addEventListener("submit",async e=>{
-  e.preventDefault();const btn=$("#authSubmit");btn.disabled=true;$("#authMessage").textContent="";
+$("#googleAuthBtn").addEventListener("click",async()=>{
+  const btn=$("#googleAuthBtn");btn.disabled=true;$("#authMessage").textContent="";
   try{
-    const email=$("#authEmail").value.trim(),password=$("#authPassword").value;
-    if(authMode==="signup"){
-      const {data,error}=await supabase.auth.signUp({email,password,options:{data:{full_name:$("#authName").value.trim(),preferred_language:lang,account_type:$("#accountType").value}}});
-      if(error)throw error;
-      if(data.session){toast("Account created successfully.");closeDialog("authDialog")}
-      else $("#authMessage").textContent="Account created. Check your email to confirm your address, then log in.";
-    }else{
-      const {error}=await supabase.auth.signInWithPassword({email,password});if(error)throw error;
-      closeDialog("authDialog");toast("Login successful.");
-    }
-  }catch(err){$("#authMessage").textContent=err.message||"Something went wrong."}
-  finally{btn.disabled=false}
-});
-$("#forgotBtn").addEventListener("click",async()=>{
-  const email=$("#authEmail").value.trim();if(!email)return $("#authMessage").textContent="Enter your email address first.";
-  const {error}=await supabase.auth.resetPasswordForEmail(email,{redirectTo:location.href});
-  $("#authMessage").textContent=error?error.message:"Password reset email sent.";
+    const {error}=await supabase.auth.signInWithOAuth({
+      provider:"google",
+      options:{redirectTo:location.origin+location.pathname}
+    });
+    if(error)throw error;
+  }catch(err){$("#authMessage").textContent=err.message||"Google sign-in could not start.";btn.disabled=false;}
 });
 async function signOut(){await supabase.auth.signOut();toast("Signed out.");}
 supabase.auth.onAuthStateChange((_event,newSession)=>{session=newSession;setTimeout(refreshUserUI,0)});
