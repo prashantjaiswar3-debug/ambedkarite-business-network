@@ -32,3 +32,26 @@
 @media(max-width:560px){.business-detail-hero{grid-template-columns:1fr}.business-detail-hero img{width:100%;height:150px}}
 .branch-buttons{display:flex;gap:8px;flex-wrap:wrap}.business-gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px;margin:12px 0}.business-gallery img{width:100%;height:100px;object-fit:cover;border-radius:10px}
 .portal-nav{display:flex;align-items:center;gap:12px;margin-left:auto;font-size:13px}.portal-nav a{color:var(--text,#1f2937);text-decoration:none;padding:7px 9px;border-radius:8px}.portal-nav a:hover{background:var(--surface,#eef3fb)}@media(max-width:900px){.portal-nav{order:3;width:100%;justify-content:center;margin:0;flex-wrap:wrap}}
+
+
+/* Consumer portal: keep business management in the dedicated Owner portal. */
+body:has(#businessGrid) #addBusinessBtn,
+body:has(#businessGrid) #addProductBtn,
+body:has(#businessGrid) #my-listings,
+body:has(#businessGrid) #ownerPanel,
+body:has(#businessGrid) #branches,
+body:has(#businessGrid) #branchPanel,
+body:has(#businessGrid) #enquiries,
+body:has(#businessGrid) #enquiryPanel,
+body:has(#businessGrid) #verification,
+body:has(#businessGrid) .verify-panel,
+body:has(#businessGrid) .verify-card,
+body:has(#businessGrid) .sidebar nav a[href="#my-listings"],
+body:has(#businessGrid) .sidebar nav a[href="#enquiries"],
+body:has(#businessGrid) .sidebar nav a[href="#verification"],
+body:has(#businessGrid) .sidebar nav a[href="#profile"] {display:none!important}
+.profile-trigger{width:42px;height:42px;padding:3px;border:2px solid #ffffffb8;border-radius:50%;background:#fff;display:grid;place-items:center;cursor:pointer;flex:none;overflow:hidden}
+.header-avatar,.header-avatar-fallback{width:100%;height:100%;border-radius:50%;object-fit:cover;display:grid;place-items:center}
+.header-avatar-fallback{background:#eaf3ff;color:#0757b8;font-size:13px;font-weight:800}
+#profile{scroll-margin-top:82px}
+@media(max-width:560px){.profile-trigger{width:36px;height:36px}}
