@@ -1,0 +1,2 @@
+/* Dedicated owner workspace: retain existing owner workflows and hide consumer discovery panels. */
+.hero,.category-strip,#businesses,#businessGrid,#products,#productGrid,.right-rail{display:none!important}.content-grid{display:block}.primary-content{width:100%;max-width:100%}.sidebar nav .nav-link:nth-child(2),.sidebar nav .nav-link:nth-child(3){display:none}.main{padding-top:18px}.portal-nav a[href="../staff/"],.portal-nav a[href="../admin/"]{display:inline-flex}
