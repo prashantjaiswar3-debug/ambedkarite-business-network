@@ -42,6 +42,20 @@ function applyLanguage(){
 }
 function toast(msg){const el=$("#toast");el.textContent=msg;el.classList.add("show");setTimeout(()=>el.classList.remove("show"),2600)}
 function slugify(s){return s.toLowerCase().trim().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")+"-"+Math.random().toString(36).slice(2,7)}
+async function uploadUserFile(file,bucket,folder,maxMB=5){
+  if(!file)return null;
+  if(!session?.user?.id)throw new Error("Please sign in before uploading.");
+  if(file.size>maxMB*1024*1024)throw new Error(`File must be smaller than ${maxMB} MB.`);
+  const allowed=["image/jpeg","image/png","image/webp","application/pdf"];
+  if(!allowed.includes(file.type))throw new Error("Use JPG, PNG, WEBP or PDF files only.");
+  const ext=(file.name.split(".").pop()||"bin").toLowerCase().replace(/[^a-z0-9]/g,"");
+  const path=`${session.user.id}/${folder}/${crypto.randomUUID()}.${ext}`;
+  const {error}=await supabase.storage.from(bucket).upload(path,file,{cacheControl:"3600",upsert:false,contentType:file.type});
+  if(error)throw error;
+  if(bucket==="abn-verification-docs")return path;
+  const {data}=supabase.storage.from(bucket).getPublicUrl(path);
+  return data.publicUrl;
+}
 function escapeHtml(s=""){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 function openDialog(id){$("#"+id).showModal()}
 function closeDialog(id){$("#"+id).close()}
@@ -105,14 +119,14 @@ function populateBusinessCategories(){
   $("#bizCategory").innerHTML=categories.map(c=>`<option value="${c.id}">${escapeHtml(lang==="hi"?c.name_hi:c.name_en)}</option>`).join("");
 }
 async function loadBusinesses(){
-  const {data,error}=await supabase.from("businesses").select("id,name,slug,description,phone,city,state,logo_url,cover_url,verification_status,listing_status,average_rating,review_count,category_id,business_categories(name_en,name_hi,slug)").eq("listing_status","published").order("created_at",{ascending:false}).limit(60);
+  const {data,error}=await supabase.from("businesses").select("id,name,slug,description,phone,city,state,address,address_line2,landmark,district,pincode,latitude,longitude,image_urls,logo_url,cover_url,verification_status,listing_status,average_rating,review_count,category_id,business_categories(name_en,name_hi,slug)").eq("listing_status","published").order("created_at",{ascending:false}).limit(60);
   if(error){$("#businessGrid").innerHTML=`<div class="empty">Unable to load listings: ${escapeHtml(error.message)}</div>`;return}
   allBusinesses=data||[];renderBusinesses();await loadProducts();
 }
 async function loadProducts(){
   const {data,error}=await supabase.from("products_services").select("id,business_id,item_type,name,name_hi,description,description_hi,price,price_unit,businesses(name,city)").eq("is_active",true).order("created_at",{ascending:false}).limit(36);
   if(error){$("#productGrid").innerHTML=`<p class="muted">${escapeHtml(error.message)}</p>`;return}
-  $("#productGrid").innerHTML=data?.length?data.map(p=>`<article class="product-card"><b>${escapeHtml(lang==="hi"?(p.name_hi||p.name):p.name)}</b><p>${escapeHtml(p.businesses?.name||"ABN Business")} · ${p.item_type}</p><p>${escapeHtml(p.description||"")}</p><strong>${p.price==null?"Price on request":"₹"+Number(p.price).toLocaleString("en-IN")}${p.price_unit?" / "+escapeHtml(p.price_unit):""}</strong></article>`).join(""):'<div class="empty">No products or services listed yet. Business owners can add their offerings.</div>';
+  $("#productGrid").innerHTML=data?.length?data.map(p=>`<article class="product-card">${p.image_url?`<img class="product-image" src="${escapeHtml(p.image_url)}" alt="" loading="lazy">`:""}<b>${escapeHtml(lang==="hi"?(p.name_hi||p.name):p.name)}</b><p>${escapeHtml(p.businesses?.name||"ABN Business")} · ${p.item_type}</p><p>${escapeHtml(p.description||"")}</p><strong>${p.price==null?"Price on request":"₹"+Number(p.price).toLocaleString("en-IN")}${p.price_unit?" / "+escapeHtml(p.price_unit):""}</strong></article>`).join(""):'<div class="empty">No products or services listed yet. Business owners can add their offerings.</div>';
 }
 function renderBusinesses(){
   const q=$("#searchInput").value.trim().toLowerCase();
@@ -201,18 +215,33 @@ async function loadOwnerBusinesses(){
 }
 $("#businessForm").addEventListener("submit",async e=>{
   e.preventDefault();if(!session)return showAuth("login");
-  const name=$("#bizName").value.trim();
-  const payload={owner_id:session.user.id,category_id:$("#bizCategory").value,name,slug:slugify(name),business_type:$("#bizType").value,phone:$("#bizPhone").value.trim()||null,city:$("#bizCity").value.trim()||null,description:$("#bizDescription").value.trim()||null,listing_status:"pending",verification_status:"pending"};
-  const {error}=await supabase.from("businesses").insert(payload);
-  $("#businessMessage").textContent=error?error.message:"Business submitted for review. It will appear publicly after approval.";
-  if(!error){e.target.reset();await loadOwnerBusinesses();toast("Business submitted for review.");}
+  const btn=e.submitter; if(btn)btn.disabled=true;
+  try{
+    const name=$("#bizName").value.trim();
+    const media=$("#bizPhotos")?.files||[];
+    if(media.length>8)throw new Error("Upload up to 8 business photos.");
+    const urls=[];
+    for(const file of media)urls.push(await uploadUserFile(file,"abn-business-media","business",5));
+    const logo=await uploadUserFile($("#bizLogo")?.files?.[0],"abn-business-media","logos",5);
+    const cover=await uploadUserFile($("#bizCover")?.files?.[0],"abn-business-media","covers",5);
+    const payload={owner_id:session.user.id,category_id:$("#bizCategory").value,name,slug:slugify(name),business_type:$("#bizType").value,phone:$("#bizPhone").value.trim()||null,city:$("#bizCity").value.trim()||null,description:$("#bizDescription").value.trim()||null,address:$("#bizAddress")?.value.trim()||null,address_line2:$("#bizAddress2")?.value.trim()||null,landmark:$("#bizLandmark")?.value.trim()||null,district:$("#bizDistrict")?.value.trim()||null,state:$("#bizState")?.value.trim()||"Maharashtra",pincode:$("#bizPincode")?.value.trim()||null,country:"India",latitude:$("#bizLatitude")?.value?Number($("#bizLatitude").value):null,longitude:$("#bizLongitude")?.value?Number($("#bizLongitude").value):null,image_urls:urls,logo_url:logo,cover_url:cover,listing_status:"pending",verification_status:"pending"};
+    const {error}=await supabase.from("businesses").insert(payload);if(error)throw error;
+    $("#businessMessage").textContent="Business submitted for review. It will appear publicly after approval.";
+    e.target.reset();await loadOwnerBusinesses();toast("Business submitted for review.");
+  }catch(err){$("#businessMessage").textContent=err.message||"Unable to save business."}
+  finally{if(btn)btn.disabled=false}
 });
 $("#productForm").addEventListener("submit",async e=>{
-  e.preventDefault();const price=$("#productPrice").value;
-  const payload={business_id:$("#productBusiness").value,item_type:$("#productType").value,name:$("#productName").value.trim(),description:$("#productDescription").value.trim()||null,price:price?Number(price):null,price_unit:$("#productUnit").value.trim()||null,is_active:true};
-  const {error}=await supabase.from("products_services").insert(payload);
-  $("#productMessage").textContent=error?error.message:"Product / service saved.";
-  if(!error){e.target.reset();await loadProducts();toast("Product / service added.");}
+  e.preventDefault();if(!session)return showAuth("login");
+  const btn=e.submitter;if(btn)btn.disabled=true;
+  try{
+    const image=await uploadUserFile($("#productImage")?.files?.[0],"abn-business-media","products",5);
+    const price=$("#productPrice").value;
+    const payload={business_id:$("#productBusiness").value,item_type:$("#productType").value,name:$("#productName").value.trim(),description:$("#productDescription").value.trim()||null,price:price?Number(price):null,price_unit:$("#productUnit").value.trim()||null,image_url:image,is_active:true};
+    const {error}=await supabase.from("products_services").insert(payload);if(error)throw error;
+    $("#productMessage").textContent="Product / service saved.";e.target.reset();await loadProducts();toast("Product / service added.");
+  }catch(err){$("#productMessage").textContent=err.message||"Unable to save product."}
+  finally{if(btn)btn.disabled=false}
 });
 function openVerification(){
   if(!session)return showAuth("login");
@@ -221,10 +250,15 @@ function openVerification(){
   openDialog("verificationDialog");
 }
 $("#verificationForm").addEventListener("submit",async e=>{
-  e.preventDefault();const businessId=$("#verificationBusiness").value;
-  const {error}=await supabase.from("business_verification_requests").insert({business_id:businessId,submitted_by:session.user.id,document_type:$("#documentType").value,document_url:$("#documentUrl").value.trim(),notes:$("#verificationNotes").value.trim()||null});
-  $("#verificationStatus").textContent=error?error.message:"Verification request submitted.";
-  if(!error)toast("Verification request submitted.");
+  e.preventDefault();if(!session)return showAuth("login");
+  const btn=e.submitter;if(btn)btn.disabled=true;
+  try{
+    const file=$("#verificationFile")?.files?.[0];if(!file)throw new Error("Choose a document to upload.");
+    const path=await uploadUserFile(file,"abn-verification-docs","verification",10);
+    const {error}=await supabase.from("business_verification_requests").insert({business_id:$("#verificationBusiness").value,submitted_by:session.user.id,document_type:$("#documentType").value,document_url:path,notes:$("#verificationNotes").value.trim()||null});
+    if(error)throw error;$("#verificationStatus").textContent="Verification request submitted securely.";toast("Verification request submitted.");e.target.reset();
+  }catch(err){$("#verificationStatus").textContent=err.message||"Unable to submit verification."}
+  finally{if(btn)btn.disabled=false}
 });
 async function loadAdminPanel(){
   const {data,error}=await supabase.from("businesses").select("id,name,city,listing_status,verification_status,created_at").eq("listing_status","pending").order("created_at").limit(50);
@@ -234,5 +268,27 @@ async function loadAdminPanel(){
     if(error)toast(error.message);else{toast("Business published.");await loadAdminPanel();await loadBusinesses()}
     btn.disabled=false;
   }));
+  const {data:requests, error:requestError}=await supabase.from("business_verification_requests").select("id,business_id,document_type,document_url,notes,status,created_at,businesses(name)").eq("status","pending").order("created_at",{ascending:true}).limit(30);
+  const verificationHtml=requestError?'<p class="muted">'+escapeHtml(requestError.message)+'</p>':(requests||[]).length?(requests||[]).map(r=>'<div class="admin-row"><div><b>'+escapeHtml(r.businesses?.name||"Business")+'</b><p class="muted">'+escapeHtml(r.document_type)+' · '+new Date(r.created_at).toLocaleDateString()+'</p><button class="text-btn" data-view-doc="'+r.id+'">Open private document</button></div><div><button class="primary-btn" data-verify-approve="'+r.id+'">Approve</button> <button class="secondary-btn" data-verify-reject="'+r.id+'">Reject</button></div></div>').join(""):'<p class="muted">No pending verification requests.</p>';
+  let section=$("#verificationAdminPanel");
+  if(!section){section=document.createElement("div");section.id="verificationAdminPanel";$("#adminPanel").after(section)}
+  section.innerHTML='<h3>Verification requests</h3>'+verificationHtml;
+  $$("[data-view-doc]").forEach(btn=>btn.addEventListener("click",async()=>{
+    const item=(requests||[]).find(x=>x.id===btn.dataset.viewDoc);if(!item)return;
+    const {data,error}=await supabase.storage.from("abn-verification-docs").createSignedUrl(item.document_url,300);
+    if(error)toast(error.message);else window.open(data.signedUrl,"_blank","noopener,noreferrer");
+  }));
+  async function reviewVerification(id,status){
+    const {error}=await supabase.from("business_verification_requests").update({status,reviewed_by:session.user.id,reviewed_at:new Date().toISOString(),review_notes:status==="rejected"?"Please contact ABN support for details.":null}).eq("id",id);
+    if(error){toast(error.message);return}
+    if(status==="approved"){
+      const req=(requests||[]).find(x=>x.id===id);
+      if(req)await supabase.from("businesses").update({verification_status:"verified"}).eq("id",req.business_id);
+    }
+    toast("Verification "+status+".");await loadAdminPanel();await loadBusinesses();
+  }
+  $$("[data-verify-approve]").forEach(btn=>btn.addEventListener("click",()=>reviewVerification(btn.dataset.verifyApprove,"approved")));
+  $$("[data-verify-reject]").forEach(btn=>btn.addEventListener("click",()=>reviewVerification(btn.dataset.verifyReject,"rejected")));
+
 }
 init().catch(err=>toast(err.message||"Unable to initialize ABN."));
