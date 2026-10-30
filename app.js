@@ -57,6 +57,12 @@ async function uploadUserFile(file,bucket,folder,maxMB=5){
   return data.publicUrl;
 }
 function escapeHtml(s=""){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+
+const INDIA_STATES=["Andhra Pradesh","Arunachal Pradesh","Assam","Bihar","Chhattisgarh","Goa","Gujarat","Haryana","Himachal Pradesh","Jharkhand","Karnataka","Kerala","Madhya Pradesh","Maharashtra","Manipur","Meghalaya","Mizoram","Nagaland","Odisha","Punjab","Rajasthan","Sikkim","Tamil Nadu","Telangana","Tripura","Uttar Pradesh","Uttarakhand","West Bengal","Andaman and Nicobar Islands","Chandigarh","Dadra and Nagar Haveli and Daman and Diu","Delhi","Jammu and Kashmir","Ladakh","Lakshadweep","Puducherry"];
+let indiaCities=[];
+async function loadIndiaCities(){if(indiaCities.length)return;try{const r=await fetch(new URL("./assets/india-cities.json",import.meta.url));if(!r.ok)throw new Error("City data unavailable");indiaCities=await r.json()}catch(e){console.warn("ABN location dataset:",e)}}
+function setupIndiaLocation(stateId,cityId,stateValue="",cityValue=""){const state=$("#"+stateId),city=$("#"+cityId);if(!state||!city)return;state.innerHTML='<option value="">Select state / UT</option>'+INDIA_STATES.map(s=>'<option value="'+escapeHtml(s)+'">'+escapeHtml(s)+'</option>').join("");state.value=INDIA_STATES.includes(stateValue)?stateValue:"";const fill=()=>{const list=[...new Set(indiaCities.filter(x=>x.state===state.value).map(x=>x.name))].sort((a,b)=>a.localeCompare(b));city.innerHTML='<option value="">Select city / town</option>'+list.map(c=>'<option value="'+escapeHtml(c)+'">'+escapeHtml(c)+'</option>').join("")+'<option value="__other__">Other / not listed</option>';city.disabled=!state.value;city.value=list.includes(cityValue)?cityValue:"";};state.onchange=()=>{fill();city.value="";};fill();if(cityValue&&!Array.from(city.options).some(o=>o.value===cityValue)){city.value="__other__";}}
+
 let businessMap=null,businessMarker=null;
 function setBusinessCoordinates(lat,lng){
   $("#bizLatitude").value=Number(lat).toFixed(7);$("#bizLongitude").value=Number(lng).toFixed(7);
@@ -96,7 +102,7 @@ $$("[data-profile-action]").forEach(b=>b.addEventListener("click",()=>{const act
 $("#exploreBtn").addEventListener("click",()=>$("#businesses").scrollIntoView({behavior:"smooth"}));
 $("#verifyBtn").addEventListener("click",openVerification);
 $("#verifyNowBtn").addEventListener("click",openVerification);
-$("#addBusinessBtn").addEventListener("click",()=>{if(!session)return showAuth("login");if(!profile)return toast("Profile is loading. Try again.");populateBusinessCategories();openBusinessDialog()});
+$("#addBusinessBtn").addEventListener("click",()=>{if(!session)return showAuth("login");if(!profile)return toast("Profile is loading. Try again.");populateBusinessCategories();loadIndiaCities().then(()=>setupIndiaLocation("bizState","bizCity","Maharashtra",""));openBusinessDialog()});
 $("#addProductBtn").addEventListener("click",async()=>{if(!session)return showAuth("login");if(!ownerBusinesses.length)await loadOwnerBusinesses();if(!ownerBusinesses.length)return toast("Add a business listing first.");$("#productBusiness").innerHTML=ownerBusinesses.map(b=>`<option value="${b.id}">${escapeHtml(b.name)}</option>`).join("");openDialog("productDialog")});
 $("#searchBtn").addEventListener("click",renderBusinesses);
 $("#searchInput").addEventListener("input",renderBusinesses);
@@ -251,7 +257,7 @@ function openBranchForm(branch=null){
   const fields={branchName:"branch_name",branchType:"branch_type",branchContactPerson:"contact_person",branchPhone:"phone",branchAltPhone:"alternate_phone",branchWhatsapp:"whatsapp",branchEmail:"email",branchAddress1:"address_line1",branchAddress2:"address_line2",branchLandmark:"landmark",branchArea:"area",branchCity:"city",branchDistrict:"district",branchState:"state",branchPincode:"pincode",branchCountry:"country",branchLatitude:"latitude",branchLongitude:"longitude"};
   for(const [id,key] of Object.entries(fields))$("#"+id).value=branch?.[key]??(id==="branchCountry"?"India":"");
   $("#branchBusiness").value=branch?.business_id||ownerBusinesses[0].id;
-  $("#branchHours").value=branch?.opening_hours?.text||"";
+  $("#branchHours").value=branch?.opening_hours?.text||"";loadIndiaCities().then(()=>setupIndiaLocation("branchState","branchCity",branch?.state||"",""+(branch?.city||"")));
   $("#branchActive").checked=branch?.is_active??true;
   $("#branchMessage").textContent="";
   openDialog("branchDialog");
@@ -259,7 +265,7 @@ function openBranchForm(branch=null){
 $("#branchForm").addEventListener("submit",async e=>{
   e.preventDefault();if(!session)return showAuth("login");
   const num=id=>$("#"+id).value.trim()===""?null:Number($("#"+id).value);
-  const payload={business_id:$("#branchBusiness").value,branch_name:$("#branchName").value.trim(),branch_type:$("#branchType").value,contact_person:$("#branchContactPerson").value.trim()||null,phone:$("#branchPhone").value.trim()||null,alternate_phone:$("#branchAltPhone").value.trim()||null,whatsapp:$("#branchWhatsapp").value.trim()||null,email:$("#branchEmail").value.trim()||null,address_line1:$("#branchAddress1").value.trim(),address_line2:$("#branchAddress2").value.trim()||null,landmark:$("#branchLandmark").value.trim()||null,area:$("#branchArea").value.trim()||null,city:$("#branchCity").value.trim(),district:$("#branchDistrict").value.trim()||null,state:$("#branchState").value.trim(),pincode:$("#branchPincode").value.trim()||null,country:$("#branchCountry").value.trim()||"India",latitude:num("branchLatitude"),longitude:num("branchLongitude"),opening_hours:$("#branchHours").value.trim()?{text:$("#branchHours").value.trim()}: {},is_active:$("#branchActive").checked};
+  const payload={business_id:$("#branchBusiness").value,branch_name:$("#branchName").value.trim(),branch_type:$("#branchType").value,contact_person:$("#branchContactPerson").value.trim()||null,phone:$("#branchPhone").value.trim()||null,alternate_phone:$("#branchAltPhone").value.trim()||null,whatsapp:$("#branchWhatsapp").value.trim()||null,email:$("#branchEmail").value.trim()||null,address_line1:$("#branchAddress1").value.trim(),address_line2:$("#branchAddress2").value.trim()||null,landmark:$("#branchLandmark").value.trim()||null,area:$("#branchArea").value.trim()||null,city:$("#branchCity").value.trim()==="__other__"?"":$("#branchCity").value.trim(),district:$("#branchDistrict").value.trim()||null,state:$("#branchState").value.trim(),pincode:$("#branchPincode").value.trim()||null,country:$("#branchCountry").value.trim()||"India",latitude:num("branchLatitude"),longitude:num("branchLongitude"),opening_hours:$("#branchHours").value.trim()?{text:$("#branchHours").value.trim()}: {},is_active:$("#branchActive").checked};
   const id=$("#branchId").value;
   const result=id?await supabase.from("business_branches").update(payload).eq("id",id):await supabase.from("business_branches").insert(payload);
   $("#branchMessage").textContent=result.error?result.error.message:(id?"Branch updated.":"Branch added.");
@@ -288,7 +294,7 @@ $("#businessForm").addEventListener("submit",async e=>{
     for(const file of media)urls.push(await uploadUserFile(file,"abn-business-media","business",5));
     const logo=await uploadUserFile($("#bizLogo")?.files?.[0],"abn-business-media","logos",5);
     const cover=await uploadUserFile($("#bizCover")?.files?.[0],"abn-business-media","covers",5);
-    const payload={owner_id:session.user.id,category_id:$("#bizCategory").value,name,slug:slugify(name),business_type:$("#bizType").value,phone:$("#bizPhone").value.trim()||null,city:$("#bizCity").value.trim()||null,description:$("#bizDescription").value.trim()||null,address:$("#bizAddress")?.value.trim()||null,address_line2:$("#bizAddress2")?.value.trim()||null,landmark:$("#bizLandmark")?.value.trim()||null,district:$("#bizDistrict")?.value.trim()||null,state:$("#bizState")?.value.trim()||"Maharashtra",pincode:$("#bizPincode")?.value.trim()||null,country:"India",latitude:$("#bizLatitude")?.value?Number($("#bizLatitude").value):null,longitude:$("#bizLongitude")?.value?Number($("#bizLongitude").value):null,image_urls:urls,logo_url:logo,cover_url:cover,listing_status:"pending",verification_status:"pending"};
+    const payload={owner_id:session.user.id,category_id:$("#bizCategory").value,name,slug:slugify(name),business_type:$("#bizType").value,phone:$("#bizPhone").value.trim()||null,city:$("#bizCity").value.trim()==="__other__"?null:($("#bizCity").value.trim()||null),description:$("#bizDescription").value.trim()||null,address:$("#bizAddress")?.value.trim()||null,address_line2:$("#bizAddress2")?.value.trim()||null,landmark:$("#bizLandmark")?.value.trim()||null,district:$("#bizDistrict")?.value.trim()||null,state:$("#bizState")?.value.trim()||null,pincode:$("#bizPincode")?.value.trim()||null,country:"India",latitude:$("#bizLatitude")?.value?Number($("#bizLatitude").value):null,longitude:$("#bizLongitude")?.value?Number($("#bizLongitude").value):null,image_urls:urls,logo_url:logo,cover_url:cover,listing_status:"pending",verification_status:"pending"};
     const {error}=await supabase.from("businesses").insert(payload);if(error)throw error;
     $("#businessMessage").textContent="Business submitted for review. It will appear publicly after approval.";
     e.target.reset();await loadOwnerBusinesses();toast("Business submitted for review.");
