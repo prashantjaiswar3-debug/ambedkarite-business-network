@@ -88,6 +88,10 @@
           <button class="primary-btn" id="addBusinessBtn">＋ <span data-i18n="addBusiness">Add Business</span></button>
         </section>
         <div id="ownerPanel" class="panel"><p class="muted" data-i18n="loginOwner">Login as a business owner to manage your listings and enquiries.</p></div>
+        <section class="section-heading lower-heading" id="branches">
+          <div><h2>My Branches & Outlets</h2><p>Manage branch addresses, contacts and opening details for your businesses.</p></div>
+        </section>
+        <div id="branchPanel" class="panel"><p class="muted">Sign in as a business owner to manage branches and outlets.</p></div>
 
         <section class="section-heading lower-heading" id="enquiries">
           <div><h2 data-i18n="enquiries">Enquiries</h2><p data-i18n="enquiryIntro">Customer enquiries for your businesses.</p></div>
@@ -200,6 +204,50 @@
       <label class="form-field">Notes<textarea id="verificationNotes" rows="2"></textarea></label>
       <button class="primary-btn wide">Submit for Review</button>
       <p id="verificationStatus" class="form-message"></p>
+    </form>
+  </dialog>
+
+ 
+  <dialog id="branchDialog" class="modal">
+    <form id="branchForm" class="modal-card">
+      <button type="button" class="close" data-close="branchDialog">×</button>
+      <h2 id="branchDialogTitle">Add branch / outlet</h2>
+      <input id="branchId" type="hidden">
+      <label class="form-field">Business<select id="branchBusiness" required></select></label>
+      <label class="form-field">Branch / outlet name<input id="branchName" required maxlength="120" placeholder="Main branch / Andheri outlet"></label>
+      <label class="form-field">Type<select id="branchType"><option value="head_office">Head office</option><option value="branch">Branch</option><option value="showroom">Showroom</option><option value="shop">Shop</option><option value="warehouse">Warehouse</option><option value="service_center">Service center</option><option value="other">Other</option></select></label>
+      <label class="form-field">Contact person<input id="branchContactPerson" maxlength="120"></label>
+      <div class="form-row">
+        <label class="form-field">Phone<input id="branchPhone" type="tel" required></label>
+        <label class="form-field">Alternate phone<input id="branchAltPhone" type="tel"></label>
+      </div>
+      <div class="form-row">
+        <label class="form-field">WhatsApp<input id="branchWhatsapp" type="tel"></label>
+        <label class="form-field">Email<input id="branchEmail" type="email"></label>
+      </div>
+      <label class="form-field">Address line 1<input id="branchAddress1" required maxlength="220"></label>
+      <label class="form-field">Address line 2<input id="branchAddress2" maxlength="220"></label>
+      <div class="form-row">
+        <label class="form-field">Landmark<input id="branchLandmark"></label>
+        <label class="form-field">Area / locality<input id="branchArea"></label>
+      </div>
+      <div class="form-row">
+        <label class="form-field">City<input id="branchCity" required></label>
+        <label class="form-field">District<input id="branchDistrict"></label>
+      </div>
+      <div class="form-row">
+        <label class="form-field">State<input id="branchState" required></label>
+        <label class="form-field">PIN code<input id="branchPincode" inputmode="numeric" maxlength="10"></label>
+      </div>
+      <label class="form-field">Country<input id="branchCountry" value="India"></label>
+      <div class="form-row">
+        <label class="form-field">Latitude<input id="branchLatitude" type="number" step="any"></label>
+        <label class="form-field">Longitude<input id="branchLongitude" type="number" step="any"></label>
+      </div>
+      <label class="form-field">Opening hours (optional)<textarea id="branchHours" rows="2" placeholder="Mon-Sat: 10:00 AM - 8:00 PM"></textarea></label>
+      <label class="form-field"><span><input id="branchActive" type="checkbox" checked> Active and publicly visible</span></label>
+      <button class="primary-btn wide" id="branchSaveBtn">Save branch</button>
+      <p id="branchMessage" class="form-message" role="status"></p>
     </form>
   </dialog>
 
