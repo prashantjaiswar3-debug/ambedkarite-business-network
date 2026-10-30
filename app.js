@@ -209,8 +209,8 @@ async function refreshUserUI(){
   });
 
   await loadOwnerBusinesses();await loadProducts();
-  const isAdmin=session.user.app_metadata?.role==="admin";
-  $("#adminSection").classList.toggle("hidden",!isAdmin);if(isAdmin)await loadAdminPanel();
+  // Administration is handled only in the dedicated /admin/ portal.
+  $("#adminSection").classList.add("hidden");
 }
 let ownerBusinesses=[];
 async function loadBranches(){
