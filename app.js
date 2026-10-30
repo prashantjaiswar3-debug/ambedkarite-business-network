@@ -7,7 +7,7 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
 
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => [...document.querySelectorAll(s)];
-let session = null, profile = null, allBusinesses = [], categories = [], categoryFilter = "", statusFilter = "all", authMode = "login", lang = localStorage.getItem("abn-language") || "en";
+let session = null, profile = null, effectiveAccountType = "consumer", allBusinesses = [], categories = [], categoryFilter = "", statusFilter = "all", authMode = "login", lang = localStorage.getItem("abn-language") || "en";
 const translations = {
   en: {
     dashboard:"Dashboard",businesses:"Businesses",products:"Products & Services",enquiries:"Enquiries",myListings:"My Listings",verification:"Business Verification",profile:"My Profile",
@@ -198,11 +198,11 @@ $("#enquiryForm").addEventListener("submit",async e=>{
   if(!error){e.target.reset();toast("Enquiry sent.")}
 });
 async function refreshUserUI(){
-  if(!session){profile=null;ownerBusinesses=[];$("#menuName").textContent="Welcome to ABN";$("#menuEmail").textContent="Sign in to your account";$("#menuLogin").hidden=false;$("#menuLogout").hidden=true;$("#menuAvatar").textContent="AB";$("#headerAvatar").outerHTML='<span id="headerAvatar" class="header-avatar-fallback">AB</span>';$("#ownerPanel").innerHTML=`<p class="muted">${translations[lang].loginOwner}</p>`;$("#branchPanel").innerHTML='<p class="muted">Sign in as a business owner to manage branches and outlets.</p>';$("#enquiryPanel").innerHTML='<p class="muted">Login to view enquiries.</p>';$("#profilePanel").innerHTML='<p class="muted">Sign in to view your profile.</p>';$("#adminSection").classList.add("hidden");return}
+  if(!session){profile=null;ownerBusinesses=[];effectiveAccountType="consumer";$("#menuName").textContent="Welcome to ABN";$("#menuEmail").textContent="Sign in to your account";$("#menuLogin").hidden=false;$("#menuLogout").hidden=true;$("#menuAvatar").textContent="AB";$("#headerAvatar").outerHTML='<span id="headerAvatar" class="header-avatar-fallback">AB</span>';$("#ownerPanel").innerHTML=`<p class="muted">${translations[lang].loginOwner}</p>`;$("#branchPanel").innerHTML='<p class="muted">Sign in as a business owner to manage branches and outlets.</p>';$("#enquiryPanel").innerHTML='<p class="muted">Login to view enquiries.</p>';$("#profilePanel").innerHTML='<p class="muted">Sign in to view your profile.</p>';$("#adminSection").classList.add("hidden");return}
   
-  const {data}=await supabase.from("profiles").select("full_name,phone,avatar_url,preferred_language,account_type").eq("id",session.user.id).maybeSingle();profile=data;
+  const {data}=await supabase.from("profiles").select("full_name,phone,avatar_url,preferred_language,account_type").eq("id",session.user.id).maybeSingle();profile=data;const roleResult=await supabase.rpc("abn_effective_account_type");effectiveAccountType=roleResult.data||"consumer";const roleLabels={consumer:"Consumer / User",business_owner:"Business Owner",staff:"ABN Staff",admin:"Administrator"};
   $("#menuName").textContent=profile?.full_name||"ABN Member";$("#menuEmail").textContent=session.user.email||"";$("#menuLogin").hidden=true;$("#menuLogout").hidden=false;$("#menuAvatar").textContent=(profile?.full_name||session.user.email||"AB").trim().slice(0,2).toUpperCase();const avatarNode=$("#headerAvatar");if(avatarNode){if(profile?.avatar_url){const img=document.createElement("img");img.id="headerAvatar";img.className="header-avatar";img.src=profile.avatar_url;img.alt="Profile";avatarNode.replaceWith(img)}else{avatarNode.textContent=(profile?.full_name||session.user.email||"AB").trim().slice(0,2).toUpperCase();avatarNode.className="header-avatar-fallback"}}
-  $("#profilePanel").innerHTML=`<div class="profile-card">${profile?.avatar_url?`<img class="profile-avatar" src="${escapeHtml(profile.avatar_url)}" alt="Profile photo">`:`<span class="profile-avatar profile-avatar-empty">ABN</span>`}<div><b>${escapeHtml(profile?.full_name||session.user.email)}</b><p class="muted">${escapeHtml(session.user.email)} · ${escapeHtml(profile?.account_type||"customer")}</p></div></div><form id="avatarForm" class="avatar-form"><label class="form-field">Profile picture (JPG/PNG/WEBP, max 5 MB)<input id="avatarFile" type="file" accept="image/jpeg,image/png,image/webp" required></label><button class="secondary-btn" type="submit">Upload profile picture</button><span id="avatarMessage" class="muted"></span></form><button class="secondary-btn" id="logoutBtn">Logout</button>`;
+  $("#profilePanel").innerHTML=`<div class="profile-card">${profile?.avatar_url?`<img class="profile-avatar" src="${escapeHtml(profile.avatar_url)}" alt="Profile photo">`:`<span class="profile-avatar profile-avatar-empty">ABN</span>`}<div><b>${escapeHtml(profile?.full_name||session.user.email)}</b><p class="muted">${escapeHtml(session.user.email)} · ${escapeHtml(roleLabels[effectiveAccountType]||"Consumer / User")}</p></div></div><form id="avatarForm" class="avatar-form"><label class="form-field">Profile picture (JPG/PNG/WEBP, max 5 MB)<input id="avatarFile" type="file" accept="image/jpeg,image/png,image/webp" required></label><button class="secondary-btn" type="submit">Upload profile picture</button><span id="avatarMessage" class="muted"></span></form><button class="secondary-btn" id="logoutBtn">Logout</button>`;
   $("#logoutBtn").addEventListener("click",signOut);
   $("#avatarForm").addEventListener("submit",async e=>{
     e.preventDefault();const btn=e.submitter;if(btn)btn.disabled=true;
@@ -214,7 +214,7 @@ async function refreshUserUI(){
     finally{if(btn)btn.disabled=false}
   });
 
-  await loadOwnerBusinesses();await loadProducts();
+  if(location.pathname.replace(/\\/+$/,"").endsWith("/owner")&&!["business_owner","admin"].includes(effectiveAccountType)){toast("Business Owner access is required.");location.replace("../");return;}\n  await loadOwnerBusinesses();await loadProducts();
   // Administration is handled only in the dedicated /admin/ portal.
   $("#adminSection").classList.add("hidden");
 }
