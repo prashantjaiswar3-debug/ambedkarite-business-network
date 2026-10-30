@@ -57,6 +57,30 @@ async function uploadUserFile(file,bucket,folder,maxMB=5){
   return data.publicUrl;
 }
 function escapeHtml(s=""){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+let businessMap=null,businessMarker=null;
+function setBusinessCoordinates(lat,lng){
+  $("#bizLatitude").value=Number(lat).toFixed(7);$("#bizLongitude").value=Number(lng).toFixed(7);
+  if(businessMarker)businessMarker.setLatLng([lat,lng]);
+}
+function initBusinessMap(){
+  if(!window.L||businessMap)return;
+  businessMap=L.map("bizMap").setView([21.1458,79.0882],5);
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:"© OpenStreetMap contributors"}).addTo(businessMap);
+  businessMarker=L.marker([21.1458,79.0882],{draggable:true}).addTo(businessMap);
+  businessMarker.on("dragend",()=>{const p=businessMarker.getLatLng();setBusinessCoordinates(p.lat,p.lng)});
+  businessMap.on("click",e=>setBusinessCoordinates(e.latlng.lat,e.latlng.lng));
+  $("#bizLocateBtn").addEventListener("click",()=>{
+    if(!navigator.geolocation)return toast("Location is not available in this browser.");
+    navigator.geolocation.getCurrentPosition(pos=>{const {latitude,longitude}=pos.coords;setBusinessCoordinates(latitude,longitude);businessMap.setView([latitude,longitude],16) },err=>toast(err.message||"Unable to get your location."),{enableHighAccuracy:true,timeout:10000});
+  });
+}
+function openBusinessDialog(){
+  openDialog("businessDialog");
+  setTimeout(()=>{
+    initBusinessMap();
+    if(businessMap){businessMap.invalidateSize();const lat=Number($("#bizLatitude").value),lng=Number($("#bizLongitude").value);if(Number.isFinite(lat)&&Number.isFinite(lng)&&lat!==0&&lng!==0){setBusinessCoordinates(lat,lng);businessMap.setView([lat,lng],15)}}
+  },150);
+}
 function openDialog(id){$("#"+id).showModal()}
 function closeDialog(id){$("#"+id).close()}
 $$("[data-close]").forEach(b=>b.addEventListener("click",()=>closeDialog(b.dataset.close)));
@@ -67,7 +91,7 @@ $("#accountBtn").addEventListener("click",()=>session?signOut():showAuth("login"
 $("#exploreBtn").addEventListener("click",()=>$("#businesses").scrollIntoView({behavior:"smooth"}));
 $("#verifyBtn").addEventListener("click",openVerification);
 $("#verifyNowBtn").addEventListener("click",openVerification);
-$("#addBusinessBtn").addEventListener("click",()=>{if(!session)return showAuth("login");if(!profile)return toast("Profile is loading. Try again.");populateBusinessCategories();openDialog("businessDialog")});
+$("#addBusinessBtn").addEventListener("click",()=>{if(!session)return showAuth("login");if(!profile)return toast("Profile is loading. Try again.");populateBusinessCategories();openBusinessDialog()});
 $("#addProductBtn").addEventListener("click",async()=>{if(!session)return showAuth("login");if(!ownerBusinesses.length)await loadOwnerBusinesses();if(!ownerBusinesses.length)return toast("Add a business listing first.");$("#productBusiness").innerHTML=ownerBusinesses.map(b=>`<option value="${b.id}">${escapeHtml(b.name)}</option>`).join("");openDialog("productDialog")});
 $("#searchBtn").addEventListener("click",renderBusinesses);
 $("#searchInput").addEventListener("input",renderBusinesses);
