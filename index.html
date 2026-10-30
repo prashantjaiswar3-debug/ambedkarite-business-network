@@ -14,17 +14,17 @@
     <a class="brand" href="#" aria-label="ABN home">
       <span class="brand-mark">ABN</span><span><b>ABN</b><small>Ambedkarite Business Network</small></span>
     </a>
-    <label class="search"><span>⌕</span><input id="searchInput" placeholder="Search businesses, products, services…"><button id="searchBtn" aria-label="Search">⌕</button></label>
+    <label class="search"><span>⌕</span><input id="searchInput" placeholder="Search businesses, products, services…"><button id="searchBtn" aria-label="Search">⌕</button></label><button class="location-btn" type="button" aria-label="Choose location">⌖ <span><small>Your Location</small><b>All Locations</b></span>⌄</button>
     
     <div class="top-actions">
       <button id="langToggle" class="lang-btn">हिंदी</button>
       <button id="accountBtn" class="profile-trigger" type="button" aria-label="Open profile menu" title="My Profile"><span id="headerAvatar" class="header-avatar-fallback">AB</span></button>
-      <div id="profileMenu" class="profile-menu" hidden><div class="profile-menu-head"><span id="menuAvatar" class="menu-avatar">AB</span><span><b id="menuName">Welcome to ABN</b><small id="menuEmail">Sign in to your account</small></span></div><button type="button" data-profile-action="profile">⚙ <span>Profile Settings</span></button><button type="button" data-profile-action="add-business" id="menuAddBusiness">＋ <span>Add Your Business</span></button><button type="button" data-profile-action="products">▧ <span>Products & Services</span></button><button type="button" data-profile-action="enquiries">✉ <span>My Enquiries</span></button><button type="button" data-profile-action="login" id="menuLogin">↪ <span>Login / Sign up</span></button><button type="button" data-profile-action="logout" id="menuLogout" hidden>↪ <span>Logout</span></button></div>
+      <div id="profileMenu" class="profile-menu" hidden><div class="profile-menu-head"><span id="menuAvatar" class="menu-avatar">AB</span><span><b id="menuName">Welcome to ABN</b><small id="menuEmail">Sign in to your account</small></span></div><button type="button" data-profile-action="profile">♙ <span>My Profile</span></button><button type="button" data-profile-action="enquiries">▤ <span>My Orders / Enquiries</span></button><button type="button" data-profile-action="saved">♡ <span>Saved Businesses</span></button><button type="button" data-profile-action="reviews">☆ <span>Reviews & Ratings</span></button><button type="button" data-profile-action="settings">⚙ <span>Settings</span></button><button type="button" data-profile-action="login" id="menuLogin">↪ <span>Login / Sign up</span></button><button type="button" data-profile-action="logout" id="menuLogout" hidden>↪ <span>Logout</span></button></div><button type="button" data-profile-action="profile">⚙ <span>Profile Settings</span></button><button type="button" data-profile-action="add-business" id="menuAddBusiness">＋ <span>Add Your Business</span></button><button type="button" data-profile-action="products">▧ <span>Products & Services</span></button><button type="button" data-profile-action="enquiries">✉ <span>My Enquiries</span></button><button type="button" data-profile-action="login" id="menuLogin">↪ <span>Login / Sign up</span></button><button type="button" data-profile-action="logout" id="menuLogout" hidden>↪ <span>Logout</span></button></div>
       <button id="menuBtn" class="mobile-menu" aria-label="Menu">☰</button>
     </div>
   </header>
 
-  <nav class="consumer-nav" aria-label="Marketplace navigation"><a class="active" href="#home">⌂ <span>Home</span></a><a href="#businesses">▦ <span>Businesses</span></a><a href="#products">◇ <span>Products</span></a><a href="#popularCategories">▤ <span>Categories</span></a></nav>
+  <nav class="consumer-nav" aria-label="Marketplace navigation"><a class="active" href="#home">⌂ <span>Home</span></a><a href="#popularCategories">▦ <span>Categories</span></a><a href="#businesses">▤ <span>Businesses</span></a><a href="#products">◇ <span>Products</span></a><a href="#businesses">✦ <span>Offers</span></a></nav>
   <aside class="sidebar" id="sidebar">
     <nav>
       <a class="nav-link active" href="#home"><span>⌂</span><b data-i18n="dashboard">Dashboard</b></a>
@@ -51,7 +51,7 @@
         <h3 data-i18n="heroSub">Support. Grow. Succeed.</h3>
         <p data-i18n="heroText">Connect with trusted businesses, products and services from our community.</p>
       </div>
-      <div class="hero-art" aria-hidden="true"><div class="hero-orbit"></div><div class="hero-building">▥</div><div class="hero-handshake">🤝</div></div>
+      <div class="hero-art" aria-hidden="true"></div><div class="hero-search"><span>⌕</span><input id="heroSearchInput" placeholder="Search businesses, products, services…"><select aria-label="Location"><option>All Locations</option></select><select aria-label="Category"><option>All Categories</option></select><button id="heroSearchBtn" type="button">Search</button></div>
     </section>
 
     <div class="content-grid">
