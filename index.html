@@ -159,10 +159,9 @@
       <label class="form-field">Address / Building / Street<input id="bizAddress" maxlength="220" placeholder="House / shop no., street, area" autocomplete="street-address"></label>
       <label class="form-field">Address line 2 / Landmark<input id="bizAddress2" maxlength="220"></label>
       <label class="form-field">State / UT<select id="bizState" required><option value="">Select state / UT</option></select></label>
-      <label class="form-field">District<input id="bizDistrict" placeholder="Enter district"></label>
-      <label class="form-field">City / Town<select id="bizCity" required disabled><option value="">Select state first</option></select></label>
+      <label class="form-field">District<select id="bizDistrict" required disabled><option value="">Select state first</option></select></label>
       <label class="form-field">PIN code<input id="bizPincode" inputmode="numeric" maxlength="6" pattern="[0-9]{6}" placeholder="6-digit PIN code"></label>
-      <div class="map-tools"><button type="button" class="secondary-btn" id="bizLocateBtn">Use my current location</button><button type="button" class="secondary-btn" id="bizSearchAddressBtn">Locate entered address</button><span class="muted">The map can fill the address, district, city and PIN code. Move the pin to correct the location.</span></div><div id="bizMap" class="business-map" aria-label="Select business location on map"></div><div class="form-row"><label class="form-field">Latitude (optional)<input id="bizLatitude" type="number" step="any"></label><label class="form-field">Longitude (optional)<input id="bizLongitude" type="number" step="any"></label></div>
+      <div class="map-tools"><button type="button" class="secondary-btn" id="bizLocateBtn">Use my current location</button><button type="button" class="secondary-btn" id="bizSearchAddressBtn">Locate entered address</button><span class="muted">The map can fill the address, state, district and PIN code. Move the pin to correct the location.</span></div><div id="bizMap" class="business-map" aria-label="Select business location on map"></div><div class="form-row"><label class="form-field">Latitude (optional)<input id="bizLatitude" type="number" step="any"></label><label class="form-field">Longitude (optional)<input id="bizLongitude" type="number" step="any"></label></div>
       <label class="form-field">Business logo (JPG/PNG/WEBP, max 5 MB)<input id="bizLogo" type="file" accept="image/jpeg,image/png,image/webp"></label>
       <label class="form-field">Cover photo (max 5 MB)<input id="bizCover" type="file" accept="image/jpeg,image/png,image/webp"></label>
       <label class="form-field">Gallery photos (up to 8, max 5 MB each)<input id="bizPhotos" type="file" accept="image/jpeg,image/png,image/webp" multiple></label>
@@ -240,8 +239,7 @@
       <label class="form-field">Address / Building / Street<input id="branchAddress1" required maxlength="220" placeholder="House / shop no., street, area"></label>
       <label class="form-field">Address line 2 / Landmark<input id="branchAddress2" maxlength="220"></label>
       <label class="form-field">State / UT<select id="branchState" required><option value="">Select state / UT</option></select></label>
-      <label class="form-field">District<input id="branchDistrict"></label>
-      <label class="form-field">City / Town<select id="branchCity" required disabled><option value="">Select state first</option></select></label>
+      <label class="form-field">District<select id="branchDistrict" required disabled><option value="">Select state first</option></select></label>
       <label class="form-field">PIN code<input id="branchPincode" inputmode="numeric" maxlength="6" pattern="[0-9]{6}"></label>
       <label class="form-field">Country<input id="branchCountry" value="India"></label>
       <div class="form-row">
