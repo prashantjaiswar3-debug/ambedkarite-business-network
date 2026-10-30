@@ -1,1 +1,269 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0b3974"><title>Business Owner Portal | ABN</title><link rel="stylesheet" href="../portal.css"></head><body data-portal="owner"><header class="portal-top"><a href="../index.html"><b>ABN · Business Owner Portal</b></a><nav><a href="../index.html">Consumer</a> · <a href="../owner/">Owner</a> · <a href="../staff/">Staff</a> · <a href="../admin/">Admin</a> <span id="who"></span> <button id="logout" hidden>Logout</button></nav></header><main class="portal-wrap"><h1>Business Owner Portal</h1><p class="muted">Manage your business profile and customer connections.</p><p id="status"></p><div id="portalContent"></div></main><script type="module" src="../portal.js"></script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0757b8">
+  <meta name="description" content="ABN — Ambedkarite Business Network. Discover, connect and grow with trusted businesses.">
+  <title>ABN Business Owner Portal</title>
+  <link rel="icon" href="../assets/abn-mark.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="owner.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#" aria-label="ABN home">
+      <span class="brand-mark">ABN</span><span><b>ABN</b><small>Ambedkarite Business Network</small></span>
+    </a>
+    <label class="search"><span>⌕</span><input id="searchInput" placeholder="Search businesses, products, services…"><button id="searchBtn" aria-label="Search">⌕</button></label>
+    <nav class="portal-nav" aria-label="ABN portals"><a href="../">Consumer</a><a href="./">Business Owner</a><a href="../staff/">Staff</a><a href="../admin/">Admin</a></nav>
+    <div class="top-actions">
+      <button id="langToggle" class="lang-btn">हिंदी</button>
+      <button id="accountBtn" class="account-btn">Login / Sign up</button>
+      <button id="menuBtn" class="mobile-menu" aria-label="Menu">☰</button>
+    </div>
+  </header>
+
+  <aside class="sidebar" id="sidebar">
+    <nav>
+      <a class="nav-link active" href="#home"><span>⌂</span><b data-i18n="dashboard">Dashboard</b></a>
+      <a class="nav-link" href="#businesses"><span>▦</span><b data-i18n="businesses">Businesses</b></a>
+      <a class="nav-link" href="#products"><span>◇</span><b data-i18n="products">Products & Services</b></a>
+      <a class="nav-link" href="#enquiries"><span>▤</span><b data-i18n="enquiries">Enquiries</b></a>
+      <a class="nav-link" href="#my-listings"><span>▣</span><b data-i18n="myListings">My Listings</b></a>
+      <a class="nav-link" href="#verification"><span>✓</span><b data-i18n="verification">Business Verification</b></a>
+      <a class="nav-link" href="#profile"><span>♙</span><b data-i18n="profile">My Profile</b></a>
+    </nav>
+    <div class="sidebar-quote">
+      <div class="ambedkar-mark">डॉ.</div>
+      <strong>“Educate<br>Organize<br>Agitate”</strong>
+      <small>— Dr. B. R. Ambedkar</small>
+    </div>
+    <div class="sidebar-foot">ABN • Support local businesses</div>
+  </aside>
+
+  <main class="main" id="home">
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow">ABN — AMBEDKARITE BUSINESS NETWORK</p>
+        <h1 data-i18n="heroTitle">Together We Build a <em>Stronger Business Community</em></h1>
+        <h3 data-i18n="heroSub">Support. Grow. Succeed.</h3>
+        <p data-i18n="heroText">Connect with trusted businesses, products and services from our community.</p>
+      </div>
+      <div class="hero-art" aria-hidden="true"><div class="hero-orbit"></div><div class="hero-building">▥</div><div class="hero-handshake">🤝</div></div>
+    </section>
+
+    <div class="content-grid">
+      <div class="primary-content">
+        <section class="category-strip" id="categoryStrip" aria-label="Business categories">
+          <button class="category active" data-category=""><span>▦</span><small data-i18n="all">All</small></button>
+          <button class="category" data-category="retail-shops"><span>▣</span><small>Retail & Shops</small></button>
+          <button class="category" data-category="food-restaurant"><span>♨</span><small>Food & Restaurant</small></button>
+          <button class="category" data-category="services"><span>⚙</span><small>Services</small></button>
+          <button class="category" data-category="education-coaching"><span>🎓</span><small>Education & Coaching</small></button>
+          <button class="category" data-category="it-digital"><span>▤</span><small>IT & Digital</small></button>
+          <button class="category" data-category="manufacturing"><span>▥</span><small>Manufacturing</small></button>
+          <button class="category" data-category="healthcare"><span>✚</span><small>Healthcare</small></button>
+        </section>
+
+        <section class="section-heading" id="businesses">
+          <div><h2 data-i18n="businessListings">Business Listings</h2><p data-i18n="businessIntro">Find and connect with verified and trusted businesses in our community.</p></div>
+          <div class="filters">
+            <button class="filter active" data-filter="all" data-i18n="allBusinesses">All Businesses</button>
+            <button class="filter" data-filter="verified">✓ <span data-i18n="verifiedOnly">Verified Only</span></button>
+            <button class="filter" data-filter="unverified">◉ <span data-i18n="notVerified">Not Verified</span></button>
+          </div>
+        </section>
+
+        <div id="businessGrid" class="business-grid">
+          <div class="loading">Loading businesses…</div>
+        </div>
+
+        <section class="section-heading lower-heading" id="products">
+          <div><h2 data-i18n="productsServices">Products & Services</h2><p data-i18n="productsIntro">Explore offerings from community businesses.</p></div>
+          <button class="primary-btn" id="addProductBtn">＋ Add Product / Service</button>
+        </section>
+        <div id="productGrid" class="product-grid"><p class="muted">Sign in to manage your products and services, or browse business listings above.</p></div>
+
+        <section class="section-heading lower-heading" id="my-listings">
+          <div><h2 data-i18n="myListings">My Listings</h2><p data-i18n="ownerIntro">Manage your business presence on ABN.</p></div>
+          <button class="primary-btn" id="addBusinessBtn">＋ <span data-i18n="addBusiness">Add Business</span></button>
+        </section>
+        <div id="ownerPanel" class="panel"><p class="muted" data-i18n="loginOwner">Login as a business owner to manage your listings and enquiries.</p></div>
+        <section class="section-heading lower-heading" id="branches">
+          <div><h2>My Branches & Outlets</h2><p>Manage branch addresses, contacts and opening details for your businesses.</p></div>
+        </section>
+        <div id="branchPanel" class="panel"><p class="muted">Sign in as a business owner to manage branches and outlets.</p></div>
+
+        <section class="section-heading lower-heading" id="enquiries">
+          <div><h2 data-i18n="enquiries">Enquiries</h2><p data-i18n="enquiryIntro">Customer enquiries for your businesses.</p></div>
+        </section>
+        <div id="enquiryPanel" class="panel"><p class="muted">Your business enquiries will appear here after login.</p></div>
+
+        <section class="section-heading lower-heading" id="verification">
+          <div><h2 data-i18n="verification">Business Verification</h2><p data-i18n="verificationIntro">Build customer confidence with an ABN verified badge.</p></div>
+        </section>
+        <div class="panel verify-panel">
+          <div><span class="shield">✓</span><div><b data-i18n="getVerified">Get Verified on ABN</b><p data-i18n="verifyText">Submit your business documents for review by the ABN team.</p></div></div>
+          <button class="primary-btn" id="verifyBtn" data-i18n="applyVerification">Apply for Verification</button>
+        </div>
+
+        <section class="section-heading lower-heading" id="profile"><div><h2 data-i18n="profile">My Profile</h2></div></section>
+        <div id="profilePanel" class="panel"><p class="muted">Sign in to view your profile.</p></div>
+
+        <section id="adminSection" class="admin-section hidden">
+          <div class="section-heading"><div><h2>ABN Administration</h2><p>Review and publish business listings.</p></div></div>
+          <div id="adminPanel" class="panel"></div>
+        </section>
+      </div>
+
+      <aside class="right-rail">
+        <div class="verify-card">
+          <div class="verify-head"><span class="big-shield">✓</span><h2 data-i18n="verifyOneClick">Get Verified<br>in One Click</h2></div>
+          <p data-i18n="verifyDesc">Show your business is genuine and build trust with more customers.</p>
+          <ul><li>✓ <span data-i18n="quickProcess">Quick & easy verification process</span></li><li>✓ <span data-i18n="confidence">Build customer confidence</span></li><li>✓ <span data-i18n="verifiedBadge">Get the verified badge</span></li><li>✓ <span data-i18n="visibility">More visibility in search & listings</span></li></ul>
+          <button class="primary-btn wide" id="verifyNowBtn" data-i18n="verifyNow">Verify Your Business Now →</button>
+        </div>
+        <div class="support-card"><div class="shop-emoji">🏪</div><h3 data-i18n="supportLocal">Support Local<br>Businesses</h3><p data-i18n="supportCommunity">Support Our Community</p><button id="exploreBtn">Explore All Businesses →</button></div>
+        <div class="dream-card"><div><b>Small Businesses<br>Big Dreams</b><small>Together We Grow</small></div></div>
+      </aside>
+    </div>
+    <footer>© <span id="year"></span> Ambedkarite Business Network • <a href="mailto:support@abn.example">Contact Support</a></footer>
+  </main>
+
+  <dialog id="authDialog" class="modal">
+    <form id="authForm" class="modal-card">
+      <button type="button" class="close" data-close="authDialog">×</button>
+      <div class="modal-brand">ABN</div>
+      <h2 id="authTitle">Welcome to ABN</h2>
+      <p id="authHint" class="muted">Login or create your account.</p>
+      <div class="tab-row"><button type="button" class="tab active" data-auth-mode="login">Login</button><button type="button" class="tab" data-auth-mode="signup">Sign up</button></div>
+      <label id="nameField" class="form-field hidden">Full name<input id="authName" autocomplete="name"></label>
+      <label class="form-field">Email<input id="authEmail" type="email" required autocomplete="email"></label>
+      <label class="form-field">Password<input id="authPassword" type="password" required minlength="8" autocomplete="current-password"></label>
+      <label id="accountTypeField" class="form-field hidden">I want to
+        <select id="accountType"><option value="customer">Find products and services (Customer)</option><option value="business_owner">List my business (Business Owner)</option></select>
+      </label>
+      <button class="primary-btn wide" id="authSubmit">Login</button>
+      <button type="button" class="text-btn" id="forgotBtn">Forgot password?</button>
+      <p id="authMessage" class="form-message" role="status"></p>
+    </form>
+  </dialog>
+
+  <dialog id="businessDialog" class="modal">
+    <form id="businessForm" class="modal-card">
+      <button type="button" class="close" data-close="businessDialog">×</button>
+      <h2>Add your business</h2><p class="muted">Your listing will be reviewed before it appears publicly.</p>
+      <label class="form-field">Business name<input id="bizName" required maxlength="120"></label>
+      <label class="form-field">Category<select id="bizCategory" required></select></label>
+      <label class="form-field">Business type<select id="bizType"><option value="both">B2C + B2B</option><option value="b2c">B2C — Customers</option><option value="b2b">B2B — Businesses</option></select></label>
+      <label class="form-field">Phone<input id="bizPhone" type="tel"></label>
+      <label class="form-field">City<input id="bizCity" value="Nagpur"></label>
+      <label class="form-field">Address line 1<input id="bizAddress" maxlength="220"></label>
+      <label class="form-field">Address line 2<input id="bizAddress2" maxlength="220"></label>
+      <div class="form-row"><label class="form-field">Landmark<input id="bizLandmark"></label><label class="form-field">District<input id="bizDistrict"></label></div>
+      <div class="form-row"><label class="form-field">State<input id="bizState" value="Maharashtra"></label><label class="form-field">PIN code<input id="bizPincode" inputmode="numeric" maxlength="10"></label></div>
+      <div class="map-tools"><button type="button" class="secondary-btn" id="bizLocateBtn">Use my current location</button><span class="muted">Click the map or drag the pin to set the business location.</span></div><div id="bizMap" class="business-map" aria-label="Select business location on map"></div><div class="form-row"><label class="form-field">Latitude (optional)<input id="bizLatitude" type="number" step="any"></label><label class="form-field">Longitude (optional)<input id="bizLongitude" type="number" step="any"></label></div>
+      <label class="form-field">Business logo (JPG/PNG/WEBP, max 5 MB)<input id="bizLogo" type="file" accept="image/jpeg,image/png,image/webp"></label>
+      <label class="form-field">Cover photo (max 5 MB)<input id="bizCover" type="file" accept="image/jpeg,image/png,image/webp"></label>
+      <label class="form-field">Gallery photos (up to 8, max 5 MB each)<input id="bizPhotos" type="file" accept="image/jpeg,image/png,image/webp" multiple></label>
+      <label class="form-field">Short description<textarea id="bizDescription" rows="3"></textarea></label>
+      <button class="primary-btn wide">Submit Business Listing</button>
+      <p id="businessMessage" class="form-message"></p>
+    </form>
+  </dialog>
+
+
+  <dialog id="productDialog" class="modal">
+    <form id="productForm" class="modal-card">
+      <button type="button" class="close" data-close="productDialog">×</button>
+      <h2>Add a product or service</h2>
+      <label class="form-field">Your business<select id="productBusiness" required></select></label>
+      <label class="form-field">Type<select id="productType"><option value="product">Product</option><option value="service">Service</option></select></label>
+      <label class="form-field">Name<input id="productName" required maxlength="120"></label>
+      <label class="form-field">Description<textarea id="productDescription" rows="3"></textarea></label>
+      <label class="form-field">Price (₹)<input id="productPrice" type="number" min="0" step="0.01"></label>
+      <label class="form-field">Price unit<input id="productUnit" placeholder="per item / per hour / starting at"></label>\n      <label class="form-field">Product / service photo (max 5 MB)<input id="productImage" type="file" accept="image/jpeg,image/png,image/webp"></label>
+      <button class="primary-btn wide">Save Product / Service</button>
+      <p id="productMessage" class="form-message"></p>
+    </form>
+  </dialog>
+
+<dialog id="businessDetailDialog" class="modal"><div class="modal-card detail-modal"><button type="button" class="close" data-close="businessDetailDialog">×</button><div id="businessDetailContent"></div></div></dialog>
+
+  <dialog id="enquiryDialog" class="modal">
+    <form id="enquiryForm" class="modal-card">
+      <button type="button" class="close" data-close="enquiryDialog">×</button>
+      <h2>Send an enquiry</h2>
+      <input id="enquiryBusinessId" type="hidden">
+      <label class="form-field">Your name<input id="enquiryName" required></label>
+      <label class="form-field">Email<input id="enquiryEmail" type="email"></label>
+      <label class="form-field">Phone<input id="enquiryPhone" type="tel"></label>
+      <label class="form-field">Message<textarea id="enquiryMessage" required rows="4"></textarea></label>
+      <button class="primary-btn wide">Send Enquiry</button>
+      <p id="enquiryStatus" class="form-message"></p>
+    </form>
+  </dialog>
+
+  <dialog id="verificationDialog" class="modal">
+    <form id="verificationForm" class="modal-card">
+      <button type="button" class="close" data-close="verificationDialog">×</button>
+      <h2>Request business verification</h2>
+      <p class="muted">Upload a business proof document securely. Files are stored in private ABN storage (PDF/JPG/PNG/WEBP, max 10 MB).</p>
+      <label class="form-field">Business<select id="verificationBusiness" required></select></label>
+      <label class="form-field">Document type<select id="documentType"><option>GST certificate</option><option>Shop & Establishment certificate</option><option>Udyam / MSME certificate</option><option>Other business proof</option></select></label>
+      <label class="form-field">Document file<input id="verificationFile" type="file" accept="application/pdf,image/jpeg,image/png,image/webp" required></label>
+      <label class="form-field">Notes<textarea id="verificationNotes" rows="2"></textarea></label>
+      <button class="primary-btn wide">Submit for Review</button>
+      <p id="verificationStatus" class="form-message"></p>
+    </form>
+  </dialog>
+
+ 
+  <dialog id="branchDialog" class="modal">
+    <form id="branchForm" class="modal-card">
+      <button type="button" class="close" data-close="branchDialog">×</button>
+      <h2 id="branchDialogTitle">Add branch / outlet</h2>
+      <input id="branchId" type="hidden">
+      <label class="form-field">Business<select id="branchBusiness" required></select></label>
+      <label class="form-field">Branch / outlet name<input id="branchName" required maxlength="120" placeholder="Main branch / Andheri outlet"></label>
+      <label class="form-field">Type<select id="branchType"><option value="head_office">Head office</option><option value="branch">Branch</option><option value="showroom">Showroom</option><option value="shop">Shop</option><option value="warehouse">Warehouse</option><option value="service_center">Service center</option><option value="other">Other</option></select></label>
+      <label class="form-field">Contact person<input id="branchContactPerson" maxlength="120"></label>
+      <div class="form-row">
+        <label class="form-field">Phone<input id="branchPhone" type="tel" required></label>
+        <label class="form-field">Alternate phone<input id="branchAltPhone" type="tel"></label>
+      </div>
+      <div class="form-row">
+        <label class="form-field">WhatsApp<input id="branchWhatsapp" type="tel"></label>
+        <label class="form-field">Email<input id="branchEmail" type="email"></label>
+      </div>
+      <label class="form-field">Address line 1<input id="branchAddress1" required maxlength="220"></label>
+      <label class="form-field">Address line 2<input id="branchAddress2" maxlength="220"></label>
+      <div class="form-row">
+        <label class="form-field">Landmark<input id="branchLandmark"></label>
+        <label class="form-field">Area / locality<input id="branchArea"></label>
+      </div>
+      <div class="form-row">
+        <label class="form-field">City<input id="branchCity" required></label>
+        <label class="form-field">District<input id="branchDistrict"></label>
+      </div>
+      <div class="form-row">
+        <label class="form-field">State<input id="branchState" required></label>
+        <label class="form-field">PIN code<input id="branchPincode" inputmode="numeric" maxlength="10"></label>
+      </div>
+      <label class="form-field">Country<input id="branchCountry" value="India"></label>
+      <div class="form-row">
+        <label class="form-field">Latitude<input id="branchLatitude" type="number" step="any"></label>
+        <label class="form-field">Longitude<input id="branchLongitude" type="number" step="any"></label>
+      </div>
+      <label class="form-field">Opening hours (optional)<textarea id="branchHours" rows="2" placeholder="Mon-Sat: 10:00 AM - 8:00 PM"></textarea></label>
+      <label class="form-field"><span><input id="branchActive" type="checkbox" checked> Active and publicly visible</span></label>
+      <button class="primary-btn wide" id="branchSaveBtn">Save branch</button>
+      <p id="branchMessage" class="form-message" role="status"></p>
+    </form>
+  </dialog>
+
+  <div id="toast" class="toast" role="status"></div>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>\n  <script type="module" src="../app.js"></script>
+</body>
+</html>
