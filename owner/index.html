@@ -132,24 +132,15 @@
   </main>
 
   <dialog id="authDialog" class="modal">
-    <form id="authForm" class="modal-card">
+    <div class="modal-card">
       <button type="button" class="close" data-close="authDialog">×</button>
       <div class="modal-brand">ABN</div>
-      <h2 id="authTitle">Welcome to ABN</h2>
-      <p id="authHint" class="muted">Login or create your account.</p>
-      <div class="tab-row"><button type="button" class="tab active" data-auth-mode="login">Login</button><button type="button" class="tab" data-auth-mode="signup">Sign up</button></div>
-      <label id="nameField" class="form-field hidden">Full name<input id="authName" autocomplete="name"></label>
-      <label class="form-field">Email<input id="authEmail" type="email" required autocomplete="email"></label>
-      <label class="form-field">Password<input id="authPassword" type="password" required minlength="8" autocomplete="current-password"></label>
-      <label id="accountTypeField" class="form-field hidden">I want to
-        <select id="accountType"><option value="customer">Find products and services (Customer)</option><option value="business_owner">List my business (Business Owner)</option></select>
-      </label>
-      <button class="primary-btn wide" id="authSubmit">Login</button>
-      <button type="button" class="text-btn" id="forgotBtn">Forgot password?</button>
+      <h2 id="authTitle">Sign in to ABN</h2>
+      <p id="authHint" class="muted">Use your Google account to continue. New users are registered automatically.</p>
+      <button type="button" class="primary-btn wide" id="googleAuthBtn"><span aria-hidden="true">G</span> Continue with Google</button>
       <p id="authMessage" class="form-message" role="status"></p>
-    </form>
+    </div>
   </dialog>
-
   <dialog id="businessDialog" class="modal">
     <form id="businessForm" class="modal-card">
       <button type="button" class="close" data-close="businessDialog">×</button>
