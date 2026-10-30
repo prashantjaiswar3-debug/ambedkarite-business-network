@@ -97,12 +97,13 @@ $("#menuBtn").addEventListener("click",()=>$("#sidebar").classList.toggle("open"
 const profileMenu=$("#profileMenu");
 $("#accountBtn").addEventListener("click",(e)=>{e.stopPropagation();if(!session){showAuth("login");return;}profileMenu.hidden=!profileMenu.hidden;});
 document.addEventListener("click",e=>{if(profileMenu&&!profileMenu.contains(e.target)&&!$("#accountBtn").contains(e.target))profileMenu.hidden=true;});
-$$("[data-profile-action]").forEach(b=>b.addEventListener("click",()=>{const action=b.dataset.profileAction;profileMenu.hidden=true;if(action==="login")showAuth("login");else if(action==="logout")signOut();else if(action==="profile")$("#profile").scrollIntoView({behavior:"smooth"});else if(action==="products")$("#products").scrollIntoView({behavior:"smooth"});else if(action==="enquiries")toast("Send enquiries from individual business pages.");}));
+$$("[data-profile-action]").forEach(b=>b.addEventListener("click",()=>{const action=b.dataset.profileAction;profileMenu.hidden=true;if(action==="login")showAuth("login");else if(action==="logout")signOut();else if(action==="profile")openDialog("profileSettingsDialog");else if(action==="add-business")openBusinessRequest();else if(action==="products")$("#products").scrollIntoView({behavior:"smooth"});else if(action==="enquiries")toast("Send enquiries from individual business pages.");}));
 
 $("#exploreBtn").addEventListener("click",()=>$("#businesses").scrollIntoView({behavior:"smooth"}));
 $("#verifyBtn").addEventListener("click",openVerification);
 $("#verifyNowBtn").addEventListener("click",openVerification);
-$("#addBusinessBtn").addEventListener("click",()=>{if(!session)return showAuth("login");if(!profile)return toast("Profile is loading. Try again.");populateBusinessCategories();loadIndiaCities().then(()=>setupIndiaLocation("bizState","bizCity","Maharashtra",""));openBusinessDialog()});
+function openBusinessRequest(){if(!session)return showAuth("login");if(effectiveAccountType==="business_owner"||effectiveAccountType==="admin"){location.href="./owner/";return;}populateBusinessCategories();loadIndiaCities().then(()=>setupIndiaLocation("bizState","bizCity","Maharashtra",""));openBusinessDialog();}
+$("#addBusinessBtn").addEventListener("click",()=>{if(!session)return showAuth("login");if(effectiveAccountType==="business_owner"||effectiveAccountType==="admin"){location.href="./owner/";return;}if(!profile)return toast("Profile is loading. Try again.");populateBusinessCategories();loadIndiaCities().then(()=>setupIndiaLocation("bizState","bizCity","Maharashtra",""));openBusinessDialog()});
 $("#addProductBtn").addEventListener("click",async()=>{if(!session)return showAuth("login");if(!ownerBusinesses.length)await loadOwnerBusinesses();if(!ownerBusinesses.length)return toast("Add a business listing first.");$("#productBusiness").innerHTML=ownerBusinesses.map(b=>`<option value="${b.id}">${escapeHtml(b.name)}</option>`).join("");openDialog("productDialog")});
 $("#searchBtn").addEventListener("click",renderBusinesses);
 $("#searchInput").addEventListener("input",renderBusinesses);
@@ -113,7 +114,7 @@ $$("[data-auth-mode]").forEach(b=>b.addEventListener("click",()=>showAuth(b.data
 function showAuth(mode){
   authMode=mode;$("#authTitle").textContent=mode==="login"?"Welcome back":"Create your ABN account";
   $("#authHint").textContent=mode==="login"?"Login to your account.":"Join the Ambedkarite Business Network.";
-  $("#nameField").classList.toggle("hidden",mode!=="signup");$("#accountTypeField").classList.toggle("hidden",mode!=="signup");
+  $("#nameField").classList.toggle("hidden",mode!=="signup");$("#accountTypeField").classList.toggle("hidden",mode!=="signup");$("#accountType").value="consumer";
   $("#forgotBtn").classList.toggle("hidden",mode!=="login");$("#authSubmit").textContent=mode==="login"?"Login":"Create account";
   $$("[data-auth-mode]").forEach(b=>b.classList.toggle("active",b.dataset.authMode===mode));$("#authMessage").textContent="";
   openDialog("authDialog");
@@ -295,8 +296,8 @@ $("#businessForm").addEventListener("submit",async e=>{
     const logo=await uploadUserFile($("#bizLogo")?.files?.[0],"abn-business-media","logos",5);
     const cover=await uploadUserFile($("#bizCover")?.files?.[0],"abn-business-media","covers",5);
     const payload={owner_id:session.user.id,category_id:$("#bizCategory").value,name,slug:slugify(name),business_type:$("#bizType").value,phone:$("#bizPhone").value.trim()||null,city:$("#bizCity").value.trim()==="__other__"?null:($("#bizCity").value.trim()||null),description:$("#bizDescription").value.trim()||null,address:$("#bizAddress")?.value.trim()||null,address_line2:$("#bizAddress2")?.value.trim()||null,landmark:$("#bizLandmark")?.value.trim()||null,district:$("#bizDistrict")?.value.trim()||null,state:$("#bizState")?.value.trim()||null,pincode:$("#bizPincode")?.value.trim()||null,country:"India",latitude:$("#bizLatitude")?.value?Number($("#bizLatitude").value):null,longitude:$("#bizLongitude")?.value?Number($("#bizLongitude").value):null,image_urls:urls,logo_url:logo,cover_url:cover,listing_status:"pending",verification_status:"pending"};
-    const {error}=await supabase.from("businesses").insert(payload);if(error)throw error;
-    $("#businessMessage").textContent="Business submitted for review. It will appear publicly after approval.";
+    const {data:requestResult,error}=await supabase.functions.invoke("consumer-business-application",{body:payload});if(error)throw error;
+    $("#businessMessage").textContent="Business application submitted. Your consumer account stays active while ABN reviews your application.";
     e.target.reset();await loadOwnerBusinesses();toast("Business submitted for review.");
   }catch(err){$("#businessMessage").textContent=err.message||"Unable to save business."}
   finally{if(btn)btn.disabled=false}
