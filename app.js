@@ -335,8 +335,8 @@ async function loadAdminPanel(){
   const {data,error}=await supabase.from("businesses").select("id,name,city,listing_status,verification_status,created_at").eq("listing_status","pending").order("created_at").limit(50);
   $("#adminPanel").innerHTML=error?escapeHtml(error.message):(data?.length?data.map(b=>`<div class="admin-row"><div><b>${escapeHtml(b.name)}</b><p class="muted">${escapeHtml(b.city||"")} · ${b.verification_status}</p></div><button class="primary-btn" data-approve="${b.id}">Approve & Publish</button></div>`).join(""):"No pending listings.");
   $$("[data-approve]").forEach(btn=>btn.addEventListener("click",async()=>{
-    btn.disabled=true;const {error}=await supabase.rpc("admin_set_business_status",{p_business_id:btn.dataset.approve,p_listing_status:"published",p_verification_status:"pending"});
-    if(error)toast(error.message);else{toast("Business published.");await loadAdminPanel();await loadBusinesses()}
+    btn.disabled=true;const {error}=await supabase.functions.invoke("approve-business-application",{body:{business_id:btn.dataset.approve}});
+    if(error)toast(error.message);else{toast("Business approved and published. Email status: "+(data?.email_sent?"sent":"SMTP may need setup"));await loadAdminPanel();await loadBusinesses()}
     btn.disabled=false;
   }));
   const {data:requests, error:requestError}=await supabase.from("business_verification_requests").select("id,business_id,document_type,document_url,notes,status,created_at,businesses(name)").eq("status","pending").order("created_at",{ascending:true}).limit(30);
