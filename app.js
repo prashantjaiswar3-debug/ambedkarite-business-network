@@ -87,7 +87,7 @@ $$("[data-close]").forEach(b=>b.addEventListener("click",()=>closeDialog(b.datas
 $("#year").textContent=new Date().getFullYear();
 $("#langToggle").addEventListener("click",()=>{lang=lang==="en"?"hi":"en";applyLanguage()});
 $("#menuBtn").addEventListener("click",()=>$("#sidebar").classList.toggle("open"));
-$("#accountBtn").addEventListener("click",()=>session?signOut():showAuth("login"));
+$("#accountBtn").addEventListener("click",()=>session?$("#profile").scrollIntoView({behavior:"smooth",block:"start"}):showAuth("login"));
 $("#exploreBtn").addEventListener("click",()=>$("#businesses").scrollIntoView({behavior:"smooth"}));
 $("#verifyBtn").addEventListener("click",openVerification);
 $("#verifyNowBtn").addEventListener("click",openVerification);
@@ -193,9 +193,10 @@ $("#enquiryForm").addEventListener("submit",async e=>{
   if(!error){e.target.reset();toast("Enquiry sent.")}
 });
 async function refreshUserUI(){
-  if(!session){profile=null;ownerBusinesses=[];$("#accountBtn").textContent="Login / Sign up";$("#ownerPanel").innerHTML=`<p class="muted">${translations[lang].loginOwner}</p>`;$("#branchPanel").innerHTML='<p class="muted">Sign in as a business owner to manage branches and outlets.</p>';$("#enquiryPanel").innerHTML='<p class="muted">Login to view enquiries.</p>';$("#profilePanel").innerHTML='<p class="muted">Sign in to view your profile.</p>';$("#adminSection").classList.add("hidden");return}
-  $("#accountBtn").textContent=session.user.email.split("@")[0];
+  if(!session){profile=null;ownerBusinesses=[];$("#headerAvatar").outerHTML='<span id="headerAvatar" class="header-avatar-fallback">AB</span>';$("#ownerPanel").innerHTML=`<p class="muted">${translations[lang].loginOwner}</p>`;$("#branchPanel").innerHTML='<p class="muted">Sign in as a business owner to manage branches and outlets.</p>';$("#enquiryPanel").innerHTML='<p class="muted">Login to view enquiries.</p>';$("#profilePanel").innerHTML='<p class="muted">Sign in to view your profile.</p>';$("#adminSection").classList.add("hidden");return}
+  
   const {data}=await supabase.from("profiles").select("full_name,phone,avatar_url,preferred_language,account_type").eq("id",session.user.id).maybeSingle();profile=data;
+  const avatarNode=$("#headerAvatar");if(avatarNode){if(profile?.avatar_url){const img=document.createElement("img");img.id="headerAvatar";img.className="header-avatar";img.src=profile.avatar_url;img.alt="Profile";avatarNode.replaceWith(img)}else{avatarNode.textContent=(profile?.full_name||session.user.email||"AB").trim().slice(0,2).toUpperCase();avatarNode.className="header-avatar-fallback"}}
   $("#profilePanel").innerHTML=`<div class="profile-card">${profile?.avatar_url?`<img class="profile-avatar" src="${escapeHtml(profile.avatar_url)}" alt="Profile photo">`:`<span class="profile-avatar profile-avatar-empty">ABN</span>`}<div><b>${escapeHtml(profile?.full_name||session.user.email)}</b><p class="muted">${escapeHtml(session.user.email)} · ${escapeHtml(profile?.account_type||"customer")}</p></div></div><form id="avatarForm" class="avatar-form"><label class="form-field">Profile picture (JPG/PNG/WEBP, max 5 MB)<input id="avatarFile" type="file" accept="image/jpeg,image/png,image/webp" required></label><button class="secondary-btn" type="submit">Upload profile picture</button><span id="avatarMessage" class="muted"></span></form><button class="secondary-btn" id="logoutBtn">Logout</button>`;
   $("#logoutBtn").addEventListener("click",signOut);
   $("#avatarForm").addEventListener("submit",async e=>{
