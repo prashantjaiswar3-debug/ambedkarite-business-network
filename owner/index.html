@@ -160,9 +160,8 @@
       <label class="form-field">Phone<input id="bizPhone" type="tel"></label>
       <label class="form-field">Address / Building / Street<input id="bizAddress" maxlength="220" placeholder="House / shop no., street, area"></label>
       <label class="form-field">Address line 2 / Landmark<input id="bizAddress2" maxlength="220"></label>
-      <label class="form-field">State / UT<input id="bizState" value="Maharashtra"></label>
-      <label class="form-field">District<input id="bizDistrict"></label>
-      <label class="form-field">City / Town<input id="bizCity" value="Nagpur"></label>
+      <label class="form-field">State / UT<select id="bizState" required><option value="">Select state / UT</option></select></label>
+      <label class="form-field">District<select id="bizDistrict" required disabled><option value="">Select state first</option></select></label>
       <label class="form-field">PIN code<input id="bizPincode" inputmode="numeric" maxlength="6" pattern="[0-9]{6}"></label>
       <div class="map-tools"><button type="button" class="secondary-btn" id="bizLocateBtn">Use my current location</button><span class="muted">Click the map or drag the pin to set the business location.</span></div><div id="bizMap" class="business-map" aria-label="Select business location on map"></div><div class="form-row"><label class="form-field">Latitude (optional)<input id="bizLatitude" type="number" step="any"></label><label class="form-field">Longitude (optional)<input id="bizLongitude" type="number" step="any"></label></div>
       <label class="form-field">Business logo (JPG/PNG/WEBP, max 5 MB)<input id="bizLogo" type="file" accept="image/jpeg,image/png,image/webp"></label>
@@ -244,9 +243,8 @@
         <label class="form-field">Landmark<input id="branchLandmark"></label>
         <label class="form-field">Area / locality<input id="branchArea"></label>
       </div>
-      <label class="form-field">State / UT<input id="branchState" required></label>
-      <label class="form-field">District<input id="branchDistrict"></label>
-      <label class="form-field">City / Town<input id="branchCity" required></label>
+      <label class="form-field">State / UT<select id="branchState" required><option value="">Select state / UT</option></select></label>
+      <label class="form-field">District<select id="branchDistrict" required disabled><option value="">Select state first</option></select></label>
       <label class="form-field">PIN code<input id="branchPincode" inputmode="numeric" maxlength="6" pattern="[0-9]{6}"></label>
       <label class="form-field">Country<input id="branchCountry" value="India"></label>
       <div class="form-row">
