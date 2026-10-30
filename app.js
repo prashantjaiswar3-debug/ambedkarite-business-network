@@ -119,7 +119,7 @@ $("#menuBtn").addEventListener("click",()=>$("#sidebar").classList.toggle("open"
 const profileMenu=$("#profileMenu");
 $("#accountBtn").addEventListener("click",(e)=>{e.stopPropagation();if(!session){showAuth("login");return;}profileMenu.hidden=!profileMenu.hidden;});
 document.addEventListener("click",e=>{if(profileMenu&&!profileMenu.contains(e.target)&&!$("#accountBtn").contains(e.target))profileMenu.hidden=true;});
-$$("[data-profile-action]").forEach(b=>b.addEventListener("click",()=>{const action=b.dataset.profileAction;profileMenu.hidden=true;if(action==="login")showAuth("login");else if(action==="logout")signOut();else if(action==="profile")openDialog("profileSettingsDialog");else if(action==="add-business")openBusinessRequest();else if(action==="products")$("#products").scrollIntoView({behavior:"smooth"});else if(action==="enquiries")toast("Send enquiries from individual business pages.");}));
+$$("[data-profile-action]").forEach(b=>b.addEventListener("click",()=>{const action=b.dataset.profileAction;profileMenu.hidden=true;if(action==="login")showAuth("login");else if(action==="logout")signOut();else if(action==="profile"||action==="settings")openDialog("profileSettingsDialog");else if(action==="saved")toast("Saved businesses will appear here.");else if(action==="reviews")toast("Reviews and ratings will appear here.");else if(action==="enquiries")toast("Your enquiries will appear here.");}));
 
 $("#exploreBtn").addEventListener("click",()=>$("#businesses").scrollIntoView({behavior:"smooth"}));
 $("#verifyBtn").addEventListener("click",openVerification);
@@ -129,6 +129,8 @@ $("#addBusinessBtn").addEventListener("click",()=>{if(!session)return showAuth("
 $("#addProductBtn").addEventListener("click",async()=>{if(!session)return showAuth("login");if(!ownerBusinesses.length)await loadOwnerBusinesses();if(!ownerBusinesses.length)return toast("Add a business listing first.");$("#productBusiness").innerHTML=ownerBusinesses.map(b=>`<option value="${b.id}">${escapeHtml(b.name)}</option>`).join("");openDialog("productDialog")});
 $("#searchBtn").addEventListener("click",renderBusinesses);
 $("#searchInput").addEventListener("input",renderBusinesses);
+$("#heroSearchForm")?.addEventListener("submit",e=>{e.preventDefault();$("#searchInput").value=$("#heroSearchInput").value;renderBusinesses();$("#businesses").scrollIntoView({behavior:"smooth"});});
+$("#heroSearchInput")?.addEventListener("input",()=>{$("#searchInput").value=$("#heroSearchInput").value;renderBusinesses();});
 $$(".category").forEach(b=>b.addEventListener("click",()=>{$$(".category").forEach(x=>x.classList.remove("active"));b.classList.add("active");categoryFilter=b.dataset.category;renderBusinesses()}));
 $$(".filter").forEach(b=>b.addEventListener("click",()=>{$$(".filter").forEach(x=>x.classList.remove("active"));b.classList.add("active");statusFilter=b.dataset.filter;renderBusinesses()}));
 $$("[data-auth-mode]").forEach(b=>b.addEventListener("click",()=>showAuth(b.dataset.authMode)));
@@ -183,7 +185,8 @@ function renderBusinesses(){
     const logo=b.logo_url||"";
     return `<article class="business-card"><div class="business-cover"><img src="${escapeHtml(cover)}" alt="" loading="lazy"><span class="verified-tag ${verified?"":"no"}">${verified?"✓ VERIFIED":"◉ NOT VERIFIED"}</span></div><div class="business-body"><div class="business-title">${logo?`<img class="business-logo" src="${escapeHtml(logo)}" alt="">`:`<span class="business-logo"></span>`}<h3>${escapeHtml(b.name)}</h3></div><div class="business-meta"><span>▣ ${escapeHtml(b.business_categories?.[lang==="hi"?"name_hi":"name_en"]||"Business")}</span><span>📍 ${escapeHtml([b.city,b.state].filter(Boolean).join(", ")||"India")}</span><span class="rating">★ ${Number(b.average_rating||0).toFixed(1)} (${b.review_count||0} reviews)</span></div><div class="chips"><span class="chip">${escapeHtml(b.business_categories?.name_en||"Local Business")}</span><span class="chip">ABN Network</span></div><div class="card-actions"><button class="primary-btn" data-view-business="${b.id}">View Business</button><button class="secondary-btn" data-enquire="${b.id}">Enquire</button></div></div></article>`
   }).join(""):`<div class="empty">No published businesses match your search yet. Business owners can add a listing after signing up.</div>`;
-  $$("[data-enquire]").forEach(btn=>btn.addEventListener("click",()=>openEnquiry(btn.dataset.enquire)));
+  const rated=$("#topRatedList");if(rated){const top=[...list].sort((a,b)=>Number(b.average_rating||0)-Number(a.average_rating||0)).slice(0,3);rated.innerHTML=top.length?top.map(b=>{const photo=b.cover_url||b.logo_url||"https://images.unsplash.com/photo-1497366754035-f200968a6e72?w=180&q=70";return `<article class="top-rated-item"><img src="${escapeHtml(photo)}" alt=""><div><b>${escapeHtml(b.name)}</b><span><strong>★</strong> ${Number(b.average_rating||0).toFixed(1)} (${b.review_count||0})</span></div></article>`;}).join(""):'<p class="muted">No rated businesses yet.</p>';}
+  $("[data-enquire]").forEach(btn=>btn.addEventListener("click",()=>openEnquiry(btn.dataset.enquire)));
   $$("[data-view-business]").forEach(btn=>btn.addEventListener("click",()=>openBusinessDetail(btn.dataset.viewBusiness)));
 }
 async function openBusinessDetail(id){
