@@ -138,7 +138,7 @@ $("#enquiryForm").addEventListener("submit",async e=>{
   if(!error){e.target.reset();toast("Enquiry sent.")}
 });
 async function refreshUserUI(){
-  if(!session){profile=null;$("#accountBtn").textContent="Login / Sign up";$("#ownerPanel").innerHTML=`<p class="muted">${translations[lang].loginOwner}</p>`;$("#enquiryPanel").innerHTML='<p class="muted">Login to view enquiries.</p>';$("#profilePanel").innerHTML='<p class="muted">Sign in to view your profile.</p>';$("#adminSection").classList.add("hidden");return}
+  if(!session){profile=null;ownerBusinesses=[];$("#accountBtn").textContent="Login / Sign up";$("#ownerPanel").innerHTML=`<p class="muted">${translations[lang].loginOwner}</p>`;$("#branchPanel").innerHTML='<p class="muted">Sign in as a business owner to manage branches and outlets.</p>';$("#enquiryPanel").innerHTML='<p class="muted">Login to view enquiries.</p>';$("#profilePanel").innerHTML='<p class="muted">Sign in to view your profile.</p>';$("#adminSection").classList.add("hidden");return}
   $("#accountBtn").textContent=session.user.email.split("@")[0];
   const {data}=await supabase.from("profiles").select("full_name,phone,preferred_language,account_type").eq("id",session.user.id).maybeSingle();profile=data;
   $("#profilePanel").innerHTML=`<b>${escapeHtml(profile?.full_name||session.user.email)}</b><p class="muted">${escapeHtml(session.user.email)} · ${escapeHtml(profile?.account_type||"customer")}</p><button class="secondary-btn" id="logoutBtn">Logout</button>`;
@@ -148,10 +148,50 @@ async function refreshUserUI(){
   $("#adminSection").classList.toggle("hidden",!isAdmin);if(isAdmin)await loadAdminPanel();
 }
 let ownerBusinesses=[];
+async function loadBranches(){
+  const panel=$("#branchPanel");
+  if(!session){panel.innerHTML='<p class="muted">Sign in as a business owner to manage branches and outlets.</p>';return}
+  if(!ownerBusinesses.length){panel.innerHTML='<p class="muted">Add a business listing first, then you can add its branches and outlets.</p>';return}
+  const ids=ownerBusinesses.map(b=>b.id);
+  const {data,error}=await supabase.from("business_branches").select("*").in("business_id",ids).order("created_at",{ascending:false});
+  if(error){panel.innerHTML='<p class="muted">'+escapeHtml(error.message)+'</p>';return}
+  const cards=(data||[]).map(b=>{
+    const address=[b.address_line1,b.address_line2,b.landmark,b.area,b.city,b.district,b.state,b.pincode,b.country].filter(Boolean).join(", ");
+    const contacts=[b.phone,b.alternate_phone,b.whatsapp,b.email].filter(Boolean).join(" · ");
+    return '<article class="branch-card"><div class="branch-card-head"><div><b>'+escapeHtml(b.branch_name)+'</b><div class="branch-type">'+escapeHtml((b.branch_type||"branch").replaceAll("_"," "))+' · '+(b.is_active?"Active":"Inactive")+'</div></div><button class="secondary-btn" data-edit-branch="'+b.id+'">Edit</button></div><p>'+escapeHtml(address)+'</p><p>'+escapeHtml(contacts)+'</p>'+(b.opening_hours?.text?'<p>'+escapeHtml(b.opening_hours.text)+'</p>':'')+'</article>';
+  }).join("");
+  panel.innerHTML='<div class="branch-actions"><button class="primary-btn" id="addBranchBtn">＋ Add branch / outlet</button></div>'+(cards||'<p class="muted">No branches added yet.</p>');
+  $("#addBranchBtn").addEventListener("click",()=>openBranchForm());
+  $("[data-edit-branch]").forEach(btn=>btn.addEventListener("click",()=>openBranchForm((data||[]).find(x=>x.id===btn.dataset.editBranch))));
+}
+function openBranchForm(branch=null){
+  if(!session)return showAuth("login");
+  $("#branchForm").reset();
+  $("#branchId").value=branch?.id||"";
+  $("#branchDialogTitle").textContent=branch?"Edit branch / outlet":"Add branch / outlet";
+  $("#branchBusiness").innerHTML=ownerBusinesses.map(b=>'<option value="'+b.id+'">'+escapeHtml(b.name)+'</option>').join("");
+  const fields={branchName:"branch_name",branchType:"branch_type",branchContactPerson:"contact_person",branchPhone:"phone",branchAltPhone:"alternate_phone",branchWhatsapp:"whatsapp",branchEmail:"email",branchAddress1:"address_line1",branchAddress2:"address_line2",branchLandmark:"landmark",branchArea:"area",branchCity:"city",branchDistrict:"district",branchState:"state",branchPincode:"pincode",branchCountry:"country",branchLatitude:"latitude",branchLongitude:"longitude"};
+  for(const [id,key] of Object.entries(fields))$("#"+id).value=branch?.[key]??(id==="branchCountry"?"India":"");
+  $("#branchBusiness").value=branch?.business_id||ownerBusinesses[0].id;
+  $("#branchHours").value=branch?.opening_hours?.text||"";
+  $("#branchActive").checked=branch?.is_active??true;
+  $("#branchMessage").textContent="";
+  openDialog("branchDialog");
+}
+$("#branchForm").addEventListener("submit",async e=>{
+  e.preventDefault();if(!session)return showAuth("login");
+  const num=id=>$("#"+id).value.trim()===""?null:Number($("#"+id).value);
+  const payload={business_id:$("#branchBusiness").value,branch_name:$("#branchName").value.trim(),branch_type:$("#branchType").value,contact_person:$("#branchContactPerson").value.trim()||null,phone:$("#branchPhone").value.trim()||null,alternate_phone:$("#branchAltPhone").value.trim()||null,whatsapp:$("#branchWhatsapp").value.trim()||null,email:$("#branchEmail").value.trim()||null,address_line1:$("#branchAddress1").value.trim(),address_line2:$("#branchAddress2").value.trim()||null,landmark:$("#branchLandmark").value.trim()||null,area:$("#branchArea").value.trim()||null,city:$("#branchCity").value.trim(),district:$("#branchDistrict").value.trim()||null,state:$("#branchState").value.trim(),pincode:$("#branchPincode").value.trim()||null,country:$("#branchCountry").value.trim()||"India",latitude:num("branchLatitude"),longitude:num("branchLongitude"),opening_hours:$("#branchHours").value.trim()?{text:$("#branchHours").value.trim()}: {},is_active:$("#branchActive").checked};
+  const id=$("#branchId").value;
+  const result=id?await supabase.from("business_branches").update(payload).eq("id",id):await supabase.from("business_branches").insert(payload);
+  $("#branchMessage").textContent=result.error?result.error.message:(id?"Branch updated.":"Branch added.");
+  if(!result.error){toast(id?"Branch updated.":"Branch added.");closeDialog("branchDialog");await loadBranches()}
+});
 async function loadOwnerBusinesses(){
   const {data,error}=await supabase.from("businesses").select("id,name,listing_status,verification_status,created_at").eq("owner_id",session.user.id).order("created_at",{ascending:false});
   ownerBusinesses=data||[];
   $("#ownerPanel").innerHTML=error?`<p class="muted">${escapeHtml(error.message)}</p>`:ownerBusinesses.length?ownerBusinesses.map(b=>`<div class="owner-row"><div><b>${escapeHtml(b.name)}</b><p class="muted">${new Date(b.created_at).toLocaleDateString()}</p></div><div><span class="status ${b.listing_status}">${b.listing_status}</span> <span class="status ${b.verification_status}">${b.verification_status}</span></div></div>`).join(""):'<p class="muted">No business listings yet. Select “Add Business” to create your first listing.</p>';
+  await loadBranches();
   $("#enquiryPanel").innerHTML='<p class="muted">Enquiries linked to your businesses will appear here.</p>';
   if(ownerBusinesses.length){
     const ids=ownerBusinesses.map(b=>b.id);
