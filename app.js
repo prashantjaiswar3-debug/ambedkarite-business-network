@@ -222,11 +222,17 @@ async function loadBranches(){
   const cards=(data||[]).map(b=>{
     const address=[b.address_line1,b.address_line2,b.landmark,b.area,b.city,b.district,b.state,b.pincode,b.country].filter(Boolean).join(", ");
     const contacts=[b.phone,b.alternate_phone,b.whatsapp,b.email].filter(Boolean).join(" · ");
-    return '<article class="branch-card"><div class="branch-card-head"><div><b>'+escapeHtml(b.branch_name)+'</b><div class="branch-type">'+escapeHtml((b.branch_type||"branch").replaceAll("_"," "))+' · '+(b.is_active?"Active":"Inactive")+'</div></div><button class="secondary-btn" data-edit-branch="'+b.id+'">Edit</button></div><p>'+escapeHtml(address)+'</p><p>'+escapeHtml(contacts)+'</p>'+(b.opening_hours?.text?'<p>'+escapeHtml(b.opening_hours.text)+'</p>':'')+'</article>';
+    return '<article class="branch-card"><div class="branch-card-head"><div><b>'+escapeHtml(b.branch_name)+'</b><div class="branch-type">'+escapeHtml((b.branch_type||"branch").replaceAll("_"," "))+' · '+(b.is_active?"Active":"Inactive")+'</div></div><div class="branch-buttons"><button class="secondary-btn" data-edit-branch="'+b.id+'">Edit</button><button class="secondary-btn" data-delete-branch="'+b.id+'">Delete</button></div></div><p>'+escapeHtml(address)+'</p><p>'+escapeHtml(contacts)+'</p>'+(b.opening_hours?.text?'<p>'+escapeHtml(b.opening_hours.text)+'</p>':'')+'</article>';
   }).join("");
   panel.innerHTML='<div class="branch-actions"><button class="primary-btn" id="addBranchBtn">＋ Add branch / outlet</button></div>'+(cards||'<p class="muted">No branches added yet.</p>');
   $("#addBranchBtn").addEventListener("click",()=>openBranchForm());
   $("[data-edit-branch]").forEach(btn=>btn.addEventListener("click",()=>openBranchForm((data||[]).find(x=>x.id===btn.dataset.editBranch))));
+  $("[data-delete-branch]").forEach(btn=>btn.addEventListener("click",async()=>{
+    if(!confirm("Delete this branch / outlet?"))return;
+    btn.disabled=true;const {error}=await supabase.from("business_branches").delete().eq("id",btn.dataset.deleteBranch);
+    if(error){toast(error.message);btn.disabled=false;return}
+    toast("Branch / outlet deleted.");await loadBranches();
+  }));
 }
 function openBranchForm(branch=null){
   if(!session)return showAuth("login");
