@@ -64,21 +64,45 @@ async function loadIndiaCities(){if(indiaCities.length)return;try{const r=await 
 function setupIndiaLocation(stateId,cityId,stateValue="",cityValue=""){const state=$("#"+stateId),city=$("#"+cityId);if(!state||!city)return;state.innerHTML='<option value="">Select state / UT</option>'+INDIA_STATES.map(s=>'<option value="'+escapeHtml(s)+'">'+escapeHtml(s)+'</option>').join("");state.value=INDIA_STATES.includes(stateValue)?stateValue:"";const fill=()=>{const list=[...new Set(indiaCities.filter(x=>x.state===state.value).map(x=>x.name))].sort((a,b)=>a.localeCompare(b));city.innerHTML='<option value="">Select city / town</option>'+list.map(c=>'<option value="'+escapeHtml(c)+'">'+escapeHtml(c)+'</option>').join("")+'<option value="__other__">Other / not listed</option>';city.disabled=!state.value;city.value=list.includes(cityValue)?cityValue:"";};state.onchange=()=>{fill();city.value="";};fill();if(cityValue&&!Array.from(city.options).some(o=>o.value===cityValue)){city.value="__other__";}}
 
 let businessMap=null,businessMarker=null;
+async function reverseGeocodeBusiness(lat,lng){
+ try{
+  const response=await fetch("https://nominatim.openstreetmap.org/reverse?format=jsonv2&addressdetails=1&lat="+encodeURIComponent(lat)+"&lon="+encodeURIComponent(lng));
+  if(!response.ok)throw new Error("Lookup failed");
+  const result=await response.json(),a=result.address||{};
+  const street=[a.house_number,a.road||a.pedestrian||a.footway].filter(Boolean).join(" ");
+  if(street)$("#bizAddress").value=street;
+  const locality=a.suburb||a.neighbourhood||a.residential||a.hamlet;
+  if(locality)$("#bizAddress2").value=locality;
+  const state=a.state||"";
+  if(state&&Array.from($("#bizState").options).some(o=>o.value===state))$("#bizState").value=state;
+  $("#bizDistrict").value=a.state_district||a.county||a.district||$("#bizDistrict").value;
+  const city=a.city||a.town||a.village||a.municipality||a.city_district||"";
+  if(city){await loadIndiaCities();setupIndiaLocation("bizState","bizCity",$("#bizState").value,city);if($("#bizCity").value==="__other__")$("#bizCity").value="__other__";}
+  $("#bizPincode").value=a.postcode||$("#bizPincode").value;
+ }catch(error){toast("Map located, but address details were not available. Please fill them manually.");}
+}
+async function locateBusinessAddress(){
+ const city=$("#bizCity").value==="__other__"?"":$("#bizCity").value;
+ const query=[$("#bizAddress").value,$("#bizAddress2").value,$("#bizDistrict").value,city,$("#bizState").value,$("#bizPincode").value,"India"].filter(Boolean).join(", ");
+ if(!$("#bizAddress").value.trim())return toast("Enter the street/building address first.");
+ try{const response=await fetch("https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&q="+encodeURIComponent(query));const results=await response.json();if(!results.length)return toast("Address not found. Add an area or landmark and try again.");const p=results[0];setBusinessCoordinates(+p.lat,+p.lon);businessMap.setView([+p.lat,+p.lon],16);await reverseGeocodeBusiness(+p.lat,+p.lon);}catch(error){toast("Could not locate this address right now.");}
+}
 function setBusinessCoordinates(lat,lng){
-  $("#bizLatitude").value=Number(lat).toFixed(7);$("#bizLongitude").value=Number(lng).toFixed(7);
-  if(businessMarker)businessMarker.setLatLng([lat,lng]);
+ $("#bizLatitude").value=Number(lat).toFixed(7);$("#bizLongitude").value=Number(lng).toFixed(7);
+ if(businessMarker)businessMarker.setLatLng([lat,lng]);
 }
 function initBusinessMap(){
-  if(!window.L||businessMap)return;
-  businessMap=L.map("bizMap").setView([21.1458,79.0882],5);
-  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:"© OpenStreetMap contributors"}).addTo(businessMap);
-  businessMarker=L.marker([21.1458,79.0882],{draggable:true}).addTo(businessMap);
-  businessMarker.on("dragend",()=>{const p=businessMarker.getLatLng();setBusinessCoordinates(p.lat,p.lng)});
-  businessMap.on("click",e=>setBusinessCoordinates(e.latlng.lat,e.latlng.lng));
-  $("#bizLocateBtn").addEventListener("click",()=>{
-    if(!navigator.geolocation)return toast("Location is not available in this browser.");
-    navigator.geolocation.getCurrentPosition(pos=>{const {latitude,longitude}=pos.coords;setBusinessCoordinates(latitude,longitude);businessMap.setView([latitude,longitude],16) },err=>toast(err.message||"Unable to get your location."),{enableHighAccuracy:true,timeout:10000});
-  });
+ if(!window.L||businessMap)return;
+ businessMap=L.map("bizMap").setView([21.1458,79.0882],5);
+ L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:"© OpenStreetMap contributors"}).addTo(businessMap);
+ businessMarker=L.marker([21.1458,79.0882],{draggable:true}).addTo(businessMap);
+ businessMarker.on("dragend",async()=>{const p=businessMarker.getLatLng();setBusinessCoordinates(p.lat,p.lng);await reverseGeocodeBusiness(p.lat,p.lng)});
+ businessMap.on("click",async e=>{setBusinessCoordinates(e.latlng.lat,e.latlng.lng);await reverseGeocodeBusiness(e.latlng.lat,e.latlng.lng)});
+ $("#bizLocateBtn").addEventListener("click",()=>{
+  if(!navigator.geolocation)return toast("Location is not available in this browser.");
+  navigator.geolocation.getCurrentPosition(async pos=>{const {latitude,longitude}=pos.coords;setBusinessCoordinates(latitude,longitude);businessMap.setView([latitude,longitude],16);await reverseGeocodeBusiness(latitude,longitude)},err=>toast(err.message||"Unable to get your location."),{enableHighAccuracy:true,timeout:10000});
+ });
+ $("#bizSearchAddressBtn")?.addEventListener("click",locateBusinessAddress);
 }
 function openBusinessDialog(){
   openDialog("businessDialog");
