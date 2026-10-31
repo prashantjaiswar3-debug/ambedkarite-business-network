@@ -124,8 +124,8 @@ $$("[data-profile-action]").forEach(b=>b.addEventListener("click",()=>{const act
 $("#exploreBtn").addEventListener("click",()=>$("#businesses").scrollIntoView({behavior:"smooth"}));
 $("#verifyBtn").addEventListener("click",openVerification);
 $("#verifyNowBtn").addEventListener("click",openVerification);
-function openBusinessRequest(){if(!session)return showAuth("login");if(effectiveAccountType==="business_owner"||effectiveAccountType==="admin"){location.href="./owner/";return;}populateBusinessCategories();loadIndiaDistricts().then(()=>setupIndiaLocation("bizState","bizDistrict","Uttar Pradesh",""));openBusinessDialog();}
-$("#addBusinessBtn").addEventListener("click",()=>{if(!session)return showAuth("login");if(effectiveAccountType==="business_owner"||effectiveAccountType==="admin"){location.href="./owner/";return;}if(!profile)return toast("Profile is loading. Try again.");populateBusinessCategories();loadIndiaDistricts().then(()=>setupIndiaLocation("bizState","bizDistrict","Uttar Pradesh",""));openBusinessDialog()});
+function openBusinessRequest(){if(!session)return showAuth("login");populateBusinessCategories();loadIndiaDistricts().then(()=>setupIndiaLocation("bizState","bizDistrict","")).catch(e=>toast(e.message));openBusinessDialog();}
+$("#addBusinessBtn").addEventListener("click",()=>{if(!session)return showAuth("login");populateBusinessCategories();loadIndiaDistricts().then(()=>setupIndiaLocation("bizState","bizDistrict","")).catch(e=>toast(e.message));openBusinessDialog()});
 $("#addProductBtn").addEventListener("click",async()=>{if(!session)return showAuth("login");if(!ownerBusinesses.length)await loadOwnerBusinesses();if(!ownerBusinesses.length)return toast("Add a business listing first.");$("#productBusiness").innerHTML=ownerBusinesses.map(b=>`<option value="${b.id}">${escapeHtml(b.name)}</option>`).join("");openDialog("productDialog")});
 $("#searchBtn").addEventListener("click",renderBusinesses);
 $("#searchInput").addEventListener("input",renderBusinesses);
