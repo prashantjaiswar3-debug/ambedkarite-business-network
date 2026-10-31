@@ -2,7 +2,7 @@
   const params = new URLSearchParams(location.search);
   const page = params.get("page") || "dashboard";
   const groups = {
-    dashboard: [".hero", ".category-area", "#businesses", "#businessGrid"],
+    dashboard: [".hero", "#categoryStrip", ".category-area", "#businesses", "#businessGrid"],
     businesses: ["#businesses", "#businessGrid"],
     products: ["#products", "#productGrid"],
     enquiries: ["#enquiries", "#enquiryPanel"],
