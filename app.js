@@ -163,10 +163,21 @@ async function routePrivilegedAccount(user){
 supabase.auth.onAuthStateChange((_event,newSession)=>{session=newSession;setTimeout(refreshUserUI,0)});
 async function init(){
   applyLanguage();
-  const {data}=await supabase.auth.getSession();session=data.session;
-  if(!session){showAuth("login");return}
-  if(await routePrivilegedAccount(session.user))return;
-  await loadCategories();await loadBusinesses();await refreshUserUI();
+  const bounded=(promise,label,ms=12000)=>Promise.race([promise,new Promise((_,reject)=>setTimeout(()=>reject(new Error(label+" timed out. Please refresh and try again.")),ms))]);
+  try{
+    const {data}=await bounded(supabase.auth.getSession(),"Account session",10000);session=data.session;
+    if(!session){showAuth("login");return}
+    if(await bounded(routePrivilegedAccount(session.user),"Account routing",10000))return;
+    const results=await Promise.allSettled([bounded(loadCategories(),"Categories"),bounded(loadBusinesses(),"Business listings")]);
+    const failed=results.filter(x=>x.status==="rejected");
+    if(failed.length)toast(failed.map(x=>x.reason?.message||"A section could not load").join(" · "));
+    await bounded(refreshUserUI(),"Profile",10000);
+  }catch(err){
+    console.error("ABN initialization:",err);
+    const grid=$("#businessGrid");if(grid)grid.innerHTML='<div class="empty">The network could not finish loading. Check your connection and use Retry.</div><button type="button" id="retryInit" class="primary-btn">Retry</button>';
+    $("#retryInit")?.addEventListener("click",()=>location.reload());
+    toast(err.message||"Unable to initialize ABN.");
+  }
 }
 async function loadCategories(){
   const {data,error}=await supabase.from("business_categories").select("id,name_en,name_hi,slug").eq("is_active",true).order("sort_order");
@@ -176,12 +187,14 @@ function populateBusinessCategories(){
   $("#bizCategory").innerHTML=categories.map(c=>`<option value="${c.id}">${escapeHtml(lang==="hi"?c.name_hi:c.name_en)}</option>`).join("");
 }
 async function loadBusinesses(){
-  const {data,error}=await supabase.from("businesses").select("id,name,slug,description,phone,city,state,address,address_line2,landmark,district,pincode,latitude,longitude,image_urls,logo_url,cover_url,verification_status,listing_status,average_rating,review_count,category_id,business_categories(name_en,name_hi,slug)").eq("listing_status","published").order("created_at",{ascending:false}).limit(60);
+  const query=supabase.from("businesses").select("id,name,slug,description,phone,city,state,address,address_line2,landmark,district,pincode,latitude,longitude,image_urls,logo_url,cover_url,verification_status,listing_status,average_rating,review_count,category_id,business_categories(name_en,name_hi,slug)").eq("listing_status","published").order("created_at",{ascending:false}).limit(60);
+  const {data,error}=await Promise.race([query,new Promise(resolve=>setTimeout(()=>resolve({data:null,error:{message:"Business listings request timed out."}}),12000))]);
   if(error){$("#businessGrid").innerHTML=`<div class="empty">Unable to load listings: ${escapeHtml(error.message)}</div>`;return}
   allBusinesses=data||[];renderBusinesses();await loadProducts();
 }
 async function loadProducts(){
-  const {data,error}=await supabase.from("products_services").select("id,business_id,item_type,name,name_hi,description,description_hi,price,price_unit,image_url,businesses(name,city)").eq("is_active",true).order("created_at",{ascending:false}).limit(36);
+  const query=supabase.from("products_services").select("id,business_id,item_type,name,name_hi,description,description_hi,price,price_unit,image_url,businesses(name,city)").eq("is_active",true).order("created_at",{ascending:false}).limit(36);
+  const {data,error}=await Promise.race([query,new Promise(resolve=>setTimeout(()=>resolve({data:null,error:{message:"Products request timed out."}}),12000))]);
   if(error){$("#productGrid").innerHTML=`<p class="muted">${escapeHtml(error.message)}</p>`;return}
   $("#productGrid").innerHTML=data?.length?data.map(p=>`<article class="product-card">${p.image_url?`<img class="product-image" src="${escapeHtml(p.image_url)}" alt="" loading="lazy">`:""}<b>${escapeHtml(lang==="hi"?(p.name_hi||p.name):p.name)}</b><p>${escapeHtml(p.businesses?.name||"ABN Business")} · ${p.item_type}</p><p>${escapeHtml(p.description||"")}</p><strong>${p.price==null?"Price on request":"₹"+Number(p.price).toLocaleString("en-IN")}${p.price_unit?" / "+escapeHtml(p.price_unit):""}</strong></article>`).join(""):'<div class="empty">No products or services listed yet. Business owners can add their offerings.</div>';
 }
