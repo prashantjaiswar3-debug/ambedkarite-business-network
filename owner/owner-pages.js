@@ -10,7 +10,8 @@
     verification: ["#verification", ".verify-panel"],
     profile: ["#profile", "#profilePanel"]
   };
-  const selected = groups[page] || groups.dashboard;
+  const activePage = groups[page] ? page : "dashboard";
+  const selected = groups[activePage];
   const main = document.querySelector("main#home");
   if (!main) return;
   main.querySelectorAll(".hero, .content-grid .primary-content > *, .content-grid .right-rail").forEach(el => { el.hidden = true; });
@@ -21,7 +22,8 @@
   }
   document.querySelectorAll(".sidebar .nav-link").forEach(link => {
     const target = new URL(link.href, location.href).searchParams.get("page") || "dashboard";
-    link.classList.toggle("active", target === (groups[page] ? page : "dashboard"));
+    link.classList.toggle("active", target === activePage);
+    if (target === activePage) link.setAttribute("aria-current", "page"); else link.removeAttribute("aria-current");
   });
   const titles = {dashboard:"Business Owner Dashboard",businesses:"My Business Network",products:"Products & Services",enquiries:"Customer Enquiries",listings:"My Listings & Branches",verification:"Business Verification",profile:"My Profile"};
   const heading = main.querySelector(".hero h1");
