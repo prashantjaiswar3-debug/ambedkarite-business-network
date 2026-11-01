@@ -1,0 +1,12 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#102b50"><title>ABN Admin Login</title><link rel="stylesheet" href="../../portal.css"><style>body{min-height:100vh;display:grid;place-items:center;padding:20px;background:#f2f6fb}.login-wrap{width:min(100%,460px)}.login-card{background:white;border:1px solid #e1e9f2;border-radius:18px;padding:28px;box-shadow:0 18px 55px #102b5018}.login-card h1{margin:8px 0}.login-card p{color:#60738c;line-height:1.5}.login-card label{display:grid;gap:7px;margin:14px 0;font-size:13px}.login-card input{padding:12px;border:1px solid #d5dfeb;border-radius:8px;font:inherit}.login-card button{width:100%;padding:13px;border:0;border-radius:9px;background:#075bbd;color:white;font-weight:700;margin-top:10px}.login-card button:disabled{opacity:.6}.login-brand{font-weight:900;color:#075bbd;font-size:22px}.back{display:block;text-align:center;margin-top:18px;color:#075bbd}</style></head>
+<body><main class="login-wrap"><section class="login-card"><div class="login-brand">☸ ABN</div><h1>Administrator Login</h1><p>Sign in with the Google account that has ABN administrator access.</p><button id="google" type="button">Continue with Google</button><p id="message" role="status"></p><a class="back" href="../../">← Back to ABN website</a></section></main>
+<script type="module">
+import {createClient} from "https://esm.sh/@supabase/supabase-js@2.57.4";
+const sb=createClient("https://ztwownezpjrbeowwhaxw.supabase.co","sb_publishable_ZIkPhkCRyOlRG-Gci9s_lg_DnBoAXh0");
+const role="admin", message=document.querySelector("#message");
+async function check(user){const actual=user?.app_metadata?.role;if(actual!==role){await sb.auth.signOut();message.textContent="This account does not have "+role+" access. Contact the ABN administrator.";return false}location.replace("../");return true}
+document.querySelector("#google").onclick=async()=>{const b=document.querySelector("#google");b.disabled=true;message.textContent="Connecting to Google…";const {error}=await sb.auth.signInWithOAuth({provider:"google",options:{redirectTo:location.origin+location.pathname}});if(error){message.textContent=error.message;b.disabled=false}};
+const {data}=await sb.auth.getSession();if(data.session)await check(data.session.user);
+
+</script></body></html>
